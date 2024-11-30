@@ -53,7 +53,7 @@
    - Pastikan Anda sudah menginstal Node.js dan MongoDB.  
    - Clone repository ini:  
      ```bash
-     git clone https://github.com/username/forxunm.git
+     git clone https://github.com/sofyantauridodemadi/forxunm.git
      ```
    - Masuk ke direktori proyek dan instal dependensi:  
      ```bash
