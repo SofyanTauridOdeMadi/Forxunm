@@ -1,52 +1,73 @@
-/* Gaya umum untuk halaman */
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
+/* Reset Margin dan Padding */
+body, html {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff3e0; /* Warna latar belakang */
+}
+
+/* Auth Container */
+/* Auth Container */
+.auth-container {
+  width: 100%;
+  max-width: 400px; /* Batas lebar maksimum */
   padding: 20px;
-  background-color: #fff3e0; /* Warna latar belakang oranye terang */
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
-h1 {
-  color: #ff8c00; /* Warna oranye tua untuk judul */
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-}
-
-/* Gaya input pesan */
-.message-input {
-  margin: 20px auto;
-  max-width: 600px;
-  text-align: center; /* Buat elemen di tengah */
-  padding: 20px;
-  background-color: #fff8e1; /* Warna latar belakang kotak input */
-  border: 1px solid #ffd180; /* Warna oranye lembut */
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Efek bayangan */
-}
-
-/* Input untuk nama dan pesan */
-.message-input input {
-  width: 90%;
+/* Input Field */
+.auth-container input {
+  width: 100%; /* Pastikan input sesuai dengan lebar kontainer */
+  max-width: 300px; /* Batas maksimum untuk input */
   margin-bottom: 15px;
   padding: 12px;
   border: 1px solid #ffa726;
   border-radius: 6px;
-  background-color: #fff;
+  background-color: #fff8e1;
   font-size: 1rem;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.message-input input:focus {
+/* Header */
+.auth-container h1 {
+  color: #ff8c00;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.auth-container h2 {
+  color: #555;
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+/* Input Field */
+.auth-container input {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px;
+  border: 1px solid #ffa726;
+  border-radius: 6px;
+  background-color: #fff8e1;
+  font-size: 1rem;
+}
+
+.auth-container input:focus {
   outline: none;
   border-color: #ff8c00;
   box-shadow: 0 0 4px #ff8c00;
 }
 
-/* Tombol kirim pesan */
-.message-input button {
-  display: inline-block;
-  width: 90%;
+/* Button */
+.auth-container button {
+  width: 100%;
   padding: 12px;
   background-color: #ff8c00;
   color: white;
@@ -58,93 +79,11 @@ h1 {
   transition: background-color 0.3s ease;
 }
 
-.message-input button:hover {
-  background-color: #e57300; /* Warna oranye yang lebih gelap saat hover */
-}
-
-/* Kotak pesan forum */
-.forum-messages {
-  margin: 20px auto;
-  max-width: 600px;
-  background-color: #fff8e1;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #ffd180;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: left;
-}
-
-/* Pesan individu */
-.message {
-  margin-bottom: 15px;
-  padding: 15px;
-  background-color: #ffe0b2; /* Warna oranye muda */
-  border-radius: 6px;
-  border: 1px solid #ffb74d;
-}
-
-.message span {
-  font-weight: bold;
-  color: #e65100; /* Warna oranye tua */
-}
-
-/* Responsif untuk layar kecil */
-@media (max-width: 768px) {
-  .message-input,
-  .forum-messages {
-    max-width: 90%;
-    padding: 15px;
-  }
-
-  .message-input input,
-  .message-input button {
-    width: 100%;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
-}
-
-/* Gaya khusus untuk auth.html */
-.auth-container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: center;
-}
-
-.auth-container h1, .auth-container h2 {
-  color: #ff8c00;
-}
-
-.auth-container input {
-  width: 90%;
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #fff8e1;
-}
-
-.auth-container button {
-  width: 90%;
-  padding: 10px;
-  background-color: #ff8c00;
-  color: white;
-  font-size: 1rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 .auth-container button:hover {
   background-color: #e57300;
 }
 
+/* Toggle Section */
 .toggle-section {
   margin-top: 10px;
   font-size: 0.9rem;
@@ -157,17 +96,160 @@ h1 {
   font-weight: bold;
 }
 
-/* Gaya khusus untuk chat.html */
-.forum-container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Responsif untuk layar kecil */
+@media (max-width: 768px) {
+  .auth-container {
+    max-width: 90%;
+    padding: 15px;
+  }
+
+  .auth-container h1 {
+    font-size: 1.6rem;
+  }
+
+  .auth-container h2 {
+   
+
+/* Reset Margin dan Padding */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background-color: #fff3e0; /* Warna latar belakang oranye terang */
 }
 
-.forum-header h1 {
-  font-size: 2rem;
+/* Forum Container */
+.forum-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 100%; /* Tinggi penuh layar */
+  width: 100%; /* Lebar penuh layar */
+  max-width: none; /* Tidak ada pembatas */
+  background: white;
+}
+
+/* Forum Header */
+.forum-header {
+  padding: 10px;
+  background: #ff8c00;
+  color: white;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Kotak pesan forum */
+.forum-messages {
+  flex-grow: 1;
+  overflow-y: auto; /* Scroll hanya untuk area pesan */
+  padding: 10px;
+  background-color: #fff8e1;
+  border-top: 1px solid #ffd180;
+  border-bottom: 1px solid #ffd180;
+}
+
+/* Pesan individu */
+.message {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #ffe0b2; /* Warna oranye muda */
+  border-radius: 6px;
+  border: 1px solid #ffb74d;
+  font-size: 1rem;
+}
+
+.message span {
+  font-weight: bold;
+  color: #e65100; /* Warna oranye tua */
+}
+
+.message-time {
+  font-size: 12px;
+  color: #888;
+  margin-top: 5px;
+  text-align: right;
+}
+
+.reply-button {
+  font-size: 12px;
   color: #ff8c00;
+  cursor: pointer;
+  margin-top: 5px;
+  display: inline-block;
+}
+
+.reply-button:hover {
+  text-decoration: underline;
+}
+
+/* Input Pesan */
+.message-input {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #ff8c00;
+  border-top: 1px solid #ffd180;
+}
+
+.message-input input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ffa726;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 1rem;
+  color: #333;
+}
+
+.message-input input:focus {
+  outline: none;
+  border-color: #ff8c00;
+  box-shadow: 0 0 4px #ff8c00;
+}
+
+.message-input button {
+  margin-left: 10px;
+  padding: 10px 20px;
+  background-color: #e57300;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.message-input button:hover {
+  background-color: #d65a00; /* Warna oranye yang lebih gelap saat hover */
+}
+
+/* Fullscreen Responsif */
+@media (max-width: 768px) {
+  .forum-header {
+    font-size: 1.5rem;
+  }
+
+  .message {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+  .message-time {
+    font-size: 10px;
+  }
+
+  .message-input input {
+    padding: 8px;
+  }
+
+  .message-input button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
 }

@@ -100,7 +100,7 @@ router.post('/send', verifyJWT, (req, res) => {
 
 // Endpoint untuk Mengambil Semua Pesan
 router.get('/all-messages', verifyJWT, (req, res) => {
-  const sql = 'SELECT username, message, aes_key, iv FROM messages';
+  const sql = 'SELECT username, message, aes_key, iv, created_at FROM messages';
   db.query(sql, (err, results) => {
     if (err) {
       console.error('Database query failed:', err.message); // Log error
@@ -114,10 +114,14 @@ router.get('/all-messages', verifyJWT, (req, res) => {
         const decipher = crypto.createDecipheriv('aes-256-cbc', aesKey, iv);
         let decryptedMessage = decipher.update(row.message, 'hex', 'utf8');
         decryptedMessage += decipher.final('utf8');
-        return { username: row.username, message: decryptedMessage };
+        return {
+          username: row.username,
+          message: decryptedMessage,
+          created_at: new Date(row.created_at).toISOString(), // Pastikan format ISO 8601
+        };
       } catch (decryptionError) {
         console.error('Error decrypting message:', decryptionError.message); // Log error
-        return { username: row.username, message: '[Error decrypting message]' };
+        return { username: row.username, message: '[Error decrypting message]', created_at: row.created_at };
       }
     });
 

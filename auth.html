@@ -5,140 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Authentication</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Global styles */
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-      position: relative;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Gambar Latar Belakang dengan Filter Gradien */
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('./UNM.jpg') no-repeat center center/cover;
-      filter: brightness(0.7);
-      z-index: -2;
-    }
-
-    body::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(120deg, rgba(255, 154, 0, 0.7), rgba(255, 106, 0, 0.7));
-      z-index: -1;
-    }
-
-    .auth-container {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-      width: 300px;
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-
-    h2 {
-      font-size: 18px;
-      color: #555;
-      text-align: center;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      transition: all 0.3s ease;
-    }
-
-    input:focus {
-      border-color: #ff9a00;
-      outline: none;
-      box-shadow: 0 0 5px rgba(255, 154, 0, 0.5);
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #ff6a00;
-      border: none;
-      border-radius: 5px;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: #ff9a00;
-    }
-
-    .toggle-section {
-      text-align: center;
-      margin-top: 10px;
-      color: #555;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .auth-container.shake {
-      animation: shake 0.3s ease;
-    }
-
-    @keyframes shake {
-      0%, 100% {
-        transform: translateX(0);
-      }
-      25% {
-        transform: translateX(-10px);
-      }
-      50% {
-        transform: translateX(10px);
-      }
-      75% {
-        transform: translateX(-10px);
-      }
-    }
-  </style>
 </head>
 <body>
-  <div class="auth-container" id="authContainer">
-    <h1>ForXunm</h1>
+  <div class="auth-container">
+    <h1>Welcome to Forum</h1>
+    <!-- Form Login -->
     <div id="loginForm">
       <h2>Login</h2>
       <input id="loginUsername" type="text" placeholder="Username" />
       <input id="loginPassword" type="password" placeholder="Password" />
-      <button id="loginBtn">Login</button>
+      <button id="loginBtn" type="button">Login</button> <!-- Pastikan type button -->
       <div class="toggle-section">
         Don't have an account? <span onclick="toggleAuth()">Register</span>
       </div>
     </div>
+    <!-- Form Register -->
     <div id="registerForm" style="display: none;">
       <h2>Register</h2>
       <input id="registerUsername" type="text" placeholder="Username" />
       <input id="registerPassword" type="password" placeholder="Password" />
-      <button id="registerBtn">Register</button>
+      <button id="registerBtn" type="button">Register</button> <!-- Pastikan type button -->
       <div class="toggle-section">
         Already have an account? <span onclick="toggleAuth()">Login</span>
       </div>
@@ -146,6 +32,9 @@
   </div>
 
   <script>
+    /**
+     * Fungsi untuk toggle antara login dan register form
+     */
     function toggleAuth() {
       const loginForm = document.getElementById('loginForm');
       const registerForm = document.getElementById('registerForm');
@@ -153,62 +42,67 @@
       registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
     }
 
+    /**
+     * Fungsi untuk login
+     */
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
-      const authContainer = document.getElementById('authContainer');
 
       if (!username || !password) {
         alert('Please fill in both fields!');
-        authContainer.classList.add('shake');
-        setTimeout(() => authContainer.classList.remove('shake'), 300);
         return;
       }
 
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
 
-      const result = await response.json();
-      if (result.status === 'Login successful') {
-        localStorage.setItem('token', result.token);
-        localStorage.setItem('currentUser', username);
-        window.location.href = 'chat.html';
-      } else {
-        alert(result.error);
-        authContainer.classList.add('shake');
-        setTimeout(() => authContainer.classList.remove('shake'), 300);
+        const result = await response.json();
+        if (result.status === 'Login successful') {
+          localStorage.setItem('token', result.token); // Simpan token di localStorage
+          window.location.href = 'chat.html'; // Redirect ke halaman chat
+        } else {
+          alert(result.error);
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+        alert('Something went wrong during login. Please try again.');
       }
     });
 
+    /**
+     * Fungsi untuk register
+     */
     document.getElementById('registerBtn').addEventListener('click', async () => {
       const username = document.getElementById('registerUsername').value.trim();
       const password = document.getElementById('registerPassword').value.trim();
-      const authContainer = document.getElementById('authContainer');
 
       if (!username || !password) {
         alert('Please fill in both fields!');
-        authContainer.classList.add('shake');
-        setTimeout(() => authContainer.classList.remove('shake'), 300);
         return;
       }
 
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+      try {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
 
-      const result = await response.json();
-      if (result.status === 'Registration successful') {
-        alert(result.status);
-        toggleAuth();
-      } else {
-        alert(result.error);
-        authContainer.classList.add('shake');
-        setTimeout(() => authContainer.classList.remove('shake'), 500);
+        const result = await response.json();
+        if (result.status === 'Registration successful') {
+          alert('Registration successful! Please log in.');
+          toggleAuth(); // Pindah ke login form
+        } else {
+          alert(result.error);
+        }
+      } catch (error) {
+        console.error('Error during registration:', error);
+        alert('Something went wrong during registration. Please try again.');
       }
     });
   </script>
