@@ -3,77 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Forum UNEEMMMMM</title>
+  <title>Chat</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f4f4f4;
+    }
+
+    #chatContainer {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      background: #fafafa;
+    }
+
+    #message {
+      width: calc(100% - 60px);
+      padding: 10px;
+      margin-right: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    #sendBtn {
+      padding: 10px;
+      background: #007BFF;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #sendBtn:hover {
+      background: #0056b3;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      padding: 5px;
+    }
+  </style>
 </head>
 <body>
-  <div class="forum-container">
-    <div class="forum-header">
-      <h1>Forum UNEEMMMMM</h1>
-    </div>
-
-    <!-- Input Pesan -->
-    <div class="message-input">
-      <input id="message" placeholder="Type your message here..." />
+  <div id="chatContainer">
+    <div id="messages"></div>
+    <div style="display: flex;">
+      <input type="text" id="message" placeholder="Type a message..." />
       <button id="sendBtn">Send</button>
-    </div>
-
-    <!-- List Pesan -->
-    <div class="forum-messages">
-      <h2>Messages</h2>
-      <div id="allMessages">
-        <!-- Pesan akan dimuat di sini -->
-      </div>
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const currentUser = localStorage.getItem('currentUser');
-      if (!currentUser) {
-        alert('Please log in first!');
-        window.location.href = 'auth.html';
-      }
-
-      document.getElementById('sendBtn').addEventListener('click', async () => {
-        const message = document.getElementById('message').value.trim();
-
-        if (!message) {
-          alert('Message cannot be empty!');
-          return;
-        }
-
-        const response = await fetch('/api/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: currentUser, message }),
-        });
-
-        const result = await response.json();
-        alert(result.status);
-        loadMessages();
-      });
-
-      async function loadMessages() {
-        const response = await fetch('/api/all-messages');
-        const result = await response.json();
-
-        const messagesDiv = document.getElementById('allMessages');
-        messagesDiv.innerHTML = '';
-
-        result.messages.forEach(msg => {
-          const messageElement = document.createElement('div');
-          messageElement.classList.add('message');
-          messageElement.innerHTML = `
-            <span class="username">${msg.username}</span>: ${msg.message}
-            <span class="time">${new Date().toLocaleTimeString()}</span>
-          `;
-          messagesDiv.appendChild(messageElement);
-        });
-      }
-
-      loadMessages();
-    });
-  </script>
+  <script src="chat.js"></script>
 </body>
 </html>

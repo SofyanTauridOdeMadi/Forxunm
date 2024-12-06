@@ -4,20 +4,29 @@ const path = require('path');
 const apiRoutes = require('./api');
 
 const app = express();
+
+// Middleware untuk JSON parsing
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Melayani file statis
-app.use(express.static(path.join(__dirname)));
+// Menyajikan file statik dari root direktori
+app.use(express.static(__dirname));
 
-// Melayani file HTML utama
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Rute API
+// Endpoint untuk API
 app.use('/api', apiRoutes);
 
+// Menangani permintaan ke auth.html
+app.get('/auth.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'auth.html'));
+});
+
+// Menangani permintaan ke chat.html
+app.get('/chat.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'chat.html'));
+});
+
 // Jalankan server
-app.listen(3001, () => {
-  console.log('Server running on http://localhost:3001');
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
 });
