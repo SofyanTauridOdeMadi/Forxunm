@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forum UNEEMMMMM</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="forum-container">
+    <div class="forum-header">
+      <h1>Forum UNEEMMMMM</h1>
+    </div>
+
+    <!-- Input Pesan -->
+    <div class="message-input">
+      <input id="message" placeholder="Type your message here..." />
+      <button id="sendBtn">Send</button>
+    </div>
+
+    <!-- List Pesan -->
+    <div class="forum-messages">
+      <h2>Messages</h2>
+      <div id="allMessages">
+        <!-- Pesan akan dimuat di sini -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = localStorage.getItem('currentUser');
+      if (!currentUser) {
+        alert('Please log in first!');
+        window.location.href = 'auth.html';
+      }
+
+      document.getElementById('sendBtn').addEventListener('click', async () => {
+        const message = document.getElementById('message').value.trim();
+
+        if (!message) {
+          alert('Message cannot be empty!');
+          return;
+        }
+
+        const response = await fetch('/api/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: currentUser, message }),
+        });
+
+        const result = await response.json();
+        alert(result.status);
+        loadMessages();
+      });
+
+      async function loadMessages() {
+        const response = await fetch('/api/all-messages');
+        const result = await response.json();
+
+        const messagesDiv = document.getElementById('allMessages');
+        messagesDiv.innerHTML = '';
+
+        result.messages.forEach(msg => {
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('message');
+          messageElement.innerHTML = `
+            <span class="username">${msg.username}</span>: ${msg.message}
+            <span class="time">${new Date().toLocaleTimeString()}</span>
+          `;
+          messagesDiv.appendChild(messageElement);
+        });
+      }
+
+      loadMessages();
+    });
+  </script>
+</body>
+</html>

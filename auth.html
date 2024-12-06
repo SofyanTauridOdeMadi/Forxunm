@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="auth-container">
+    <h1>Welcome to Forum</h1>
+    <div id="loginForm">
+      <h2>Login</h2>
+      <input id="loginUsername" type="text" placeholder="Username" />
+      <input id="loginPassword" type="password" placeholder="Password" />
+      <button id="loginBtn">Login</button>
+      <div class="toggle-section">
+        Don't have an account? <span onclick="toggleAuth()">Register</span>
+      </div>
+    </div>
+    <div id="registerForm" style="display: none;">
+      <h2>Register</h2>
+      <input id="registerUsername" type="text" placeholder="Username" />
+      <input id="registerPassword" type="password" placeholder="Password" />
+      <button id="registerBtn">Register</button>
+      <div class="toggle-section">
+        Already have an account? <span onclick="toggleAuth()">Login</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleAuth() {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+      } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+      }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (!username || !password) {
+        alert('Please fill in both fields!');
+        return;
+      }
+
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const result = await response.json();
+      if (result.status === 'Login successful') {
+        localStorage.setItem('currentUser', username);
+        window.location.href = 'chat.html';
+      } else {
+        alert(result.error);
+      }
+    });
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const username = document.getElementById('registerUsername').value.trim();
+      const password = document.getElementById('registerPassword').value.trim();
+
+      if (!username || !password) {
+        alert('Please fill in both fields!');
+        return;
+      }
+
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const result = await response.json();
+      alert(result.status || result.error);
+    });
+  </script>
+</body>
+</html>

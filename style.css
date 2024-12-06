@@ -105,3 +105,69 @@ h1 {
     font-size: 2rem;
   }
 }
+
+/* Gaya khusus untuk auth.html */
+.auth-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.auth-container h1, .auth-container h2 {
+  color: #ff8c00;
+}
+
+.auth-container input {
+  width: 90%;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff8e1;
+}
+
+.auth-container button {
+  width: 90%;
+  padding: 10px;
+  background-color: #ff8c00;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.auth-container button:hover {
+  background-color: #e57300;
+}
+
+.toggle-section {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.toggle-section span {
+  color: #ff8c00;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Gaya khusus untuk chat.html */
+.forum-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.forum-header h1 {
+  font-size: 2rem;
+  color: #ff8c00;
+}

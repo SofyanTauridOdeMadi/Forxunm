@@ -54,3 +54,42 @@ router.get('/all-messages', (req, res) => {
 });
 
 module.exports = router;
+
+// Register Endpoint
+router.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
+  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+  const sql = 'INSERT INTO users (username, password) VALUES (?, ?)';
+
+  db.query(sql, [username, hashedPassword], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ status: 'Registration successful' });
+  });
+});
+
+// Login Endpoint
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
+  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+  const sql = 'SELECT * FROM users WHERE username = ? AND password = ?';
+
+  db.query(sql, [username, hashedPassword], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    if (results.length > 0) {
+      res.json({ status: 'Login successful' });
+    } else {
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
+  });
+});
