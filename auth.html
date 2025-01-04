@@ -6,12 +6,112 @@
   <title>Authentication</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<style>
+  /* Reset Margin dan Padding */
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('UNM.jpg') no-repeat center center fixed; /* Tambahkan URL gambar */
+    background-size: cover; /* Latar belakang memenuhi layar */
+  }
+
+  /* Auth Container */
+  .auth-container {
+    width: 100%;
+    max-width: 400px; /* Batas lebar maksimum */
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9); /* Latar belakang semi-transparan */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  /* Header */
+  .auth-container h1 {
+    color: #ff8c00;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+
+  .auth-container h2 {
+    color: #555;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+  }
+
+  /* Input Field */
+  .auth-container input {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 12px;
+    border: 1px solid #ffa726;
+    border-radius: 6px;
+    background-color: #fff8e1;
+    font-size: 1rem;
+  }
+
+  .auth-container input:focus {
+    outline: none;
+    border-color: #ff8c00;
+    box-shadow: 0 0 4px #ff8c00;
+  }
+
+  /* Button */
+  .auth-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff8c00;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .auth-container button:hover {
+    background-color: #e57300;
+  }
+
+  /* Toggle Section */
+  .toggle-section {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #888;
+  }
+
+  .toggle-section span {
+    color: #ff8c00;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  /* Responsif untuk layar kecil */
+  @media (max-width: 768px) {
+    .auth-container {
+      max-width: 90%;
+      padding: 15px;
+    }
+
+    .auth-container h1 {
+      font-size: 1.6rem;
+    }
+  }
+</style>
 <body>
   <div class="auth-container">
-    <h1>Welcome to Forum</h1>
+    <h1>ForXunm</h1>
     <!-- Form Login -->
     <div id="loginForm">
-      <h2>Login</h2>
+      <h2>Selamat Datang Di Forum, Universitas Negeri Makassar</h2>
+      <h3>Login</h3>
       <input id="loginUsername" type="text" placeholder="Username" />
       <input id="loginPassword" type="password" placeholder="Password" />
       <button id="loginBtn" type="button">Login</button> <!-- Pastikan type button -->
@@ -21,7 +121,8 @@
     </div>
     <!-- Form Register -->
     <div id="registerForm" style="display: none;">
-      <h2>Register</h2>
+      <h2>Selamat Datang Di Forum, Universitas Negeri Makassar</h2>
+      <h3>Register</h3>
       <input id="registerUsername" type="text" placeholder="Username" />
       <input id="registerPassword" type="password" placeholder="Password" />
       <button id="registerBtn" type="button">Register</button> <!-- Pastikan type button -->
