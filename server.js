@@ -15,6 +15,11 @@ app.use(express.static(__dirname));
 // Endpoint untuk API
 app.use('/api', apiRoutes);
 
+// Rute untuk root (/) - Menampilkan halaman utama
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'auth.html'));
+});
+
 // Menangani permintaan ke auth.html
 app.get('/auth.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'auth.html'));
