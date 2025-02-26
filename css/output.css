@@ -1,9 +1,53 @@
-/* Menggunakan @tailwind untuk memanggil base, components, dan utilities */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Reset Margin dan Padding */
+/*! tailwindcss v4.0.9 | MIT License | https://tailwindcss.com */
+.fixed {
+  position: fixed;
+}
+.static {
+  position: static;
+}
+.block {
+  display: block;
+}
+.flex {
+  display: flex;
+}
+.h-screen {
+  height: 100vh;
+}
+.w-1\/4 {
+  width: calc(1/4 * 100%);
+}
+.w-full {
+  width: 100%;
+}
+.flex-1 {
+  flex: 1;
+}
+.flex-grow {
+  flex-grow: 1;
+}
+.items-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.border {
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+}
+.underline {
+  text-decoration-line: underline;
+}
+.outline {
+  outline-style: var(--tw-outline-style);
+  outline-width: 1px;
+}
+.transition {
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter;
+  transition-timing-function: var(--tw-ease, ease);
+  transition-duration: var(--tw-duration, 0s);
+}
 body, html {
   margin: 0;
   padding: 0;
@@ -13,24 +57,20 @@ body, html {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fff3e0; /* Warna latar belakang */
+  background-color: #fff3e0;
 }
-
-/* Auth Container */
 .auth-container {
   width: 100%;
-  max-width: 400px; /* Batas lebar maksimum */
+  max-width: 400px;
   padding: 20px;
   background: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
 }
-
-/* Input Field */
 .auth-container input {
-  width: 100%; /* Pastikan input sesuai dengan lebar kontainer */
-  max-width: 300px; /* Batas maksimum untuk input */
+  width: 100%;
+  max-width: 300px;
   margin-bottom: 15px;
   padding: 12px;
   border: 1px solid #ffa726;
@@ -38,27 +78,21 @@ body, html {
   background-color: #fff8e1;
   font-size: 1rem;
 }
-
 .auth-container input:focus {
   outline: none;
   border-color: #ff8c00;
   box-shadow: 0 0 4px #ff8c00;
 }
-
-/* Header */
 .auth-container h1 {
   color: #ff8c00;
   font-size: 1.8rem;
   margin-bottom: 20px;
 }
-
 .auth-container h2 {
   font-size: 24px;
   font-weight: bold;
   color: #333;
 }
-
-/* Button */
 .auth-container button {
   width: 100%;
   padding: 12px;
@@ -71,52 +105,40 @@ body, html {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
 .auth-container button:hover {
   background-color: #e57300;
 }
-
-/* Toggle Section */
 .toggle-section {
   margin-top: 10px;
   font-size: 0.9rem;
   color: #888;
 }
-
 .toggle-section span {
   color: #ff8c00;
   cursor: pointer;
   font-weight: bold;
 }
-
-/* Responsif untuk layar kecil */
 @media (max-width: 768px) {
   .auth-container {
     max-width: 90%;
     padding: 15px;
   }
-
   .auth-container h1 {
     font-size: 1.6rem;
   }
-
   .auth-container h2 {
-    font-size: 1.5rem; /* Perbaikan pada h2 */
+    font-size: 1.5rem;
   }
 }
-
-/* Forum Container */
 .forum-container {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
-  height: 100%; /* Tinggi penuh layar */
-  width: 100%; /* Lebar penuh layar */
+  height: 100%;
+  width: 100%;
   background: white;
 }
-
-/* Forum Header */
 .forum-header {
   padding: 10px;
   background: #ff8c00;
@@ -126,39 +148,32 @@ body, html {
   font-weight: bold;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* Kotak pesan forum */
 .forum-messages {
   flex-grow: 1;
-  overflow-y: auto; /* Scroll hanya untuk area pesan */
+  overflow-y: auto;
   padding: 10px;
   background-color: #fff8e1;
   border-top: 1px solid #ffd180;
   border-bottom: 1px solid #ffd180;
 }
-
-/* Pesan individu */
 .message {
   margin-bottom: 10px;
   padding: 10px;
-  background-color: #ffe0b2; /* Warna oranye muda */
+  background-color: #ffe0b2;
   border-radius: 6px;
   border: 1px solid #ffb74d;
   font-size: 1rem;
 }
-
 .message span {
   font-weight: bold;
-  color: #e65100; /* Warna oranye tua */
+  color: #e65100;
 }
-
 .message-time {
   font-size: 12px;
   color: #888;
   margin-top: 5px;
   text-align: right;
 }
-
 .reply-button {
   font-size: 12px;
   color: #ff8c00;
@@ -166,12 +181,9 @@ body, html {
   margin-top: 5px;
   display: inline-block;
 }
-
 .reply-button:hover {
   text-decoration: underline;
 }
-
-/* Input Pesan */
 .message-input {
   display: flex;
   align-items: center;
@@ -179,7 +191,6 @@ body, html {
   background: #ff8c00;
   border-top: 1px solid #ffd180;
 }
-
 .message-input input {
   flex-grow: 1;
   padding: 10px;
@@ -189,13 +200,11 @@ body, html {
   font-size: 1rem;
   color: #333;
 }
-
 .message-input input:focus {
   outline: none;
   border-color: #ff8c00;
   box-shadow: 0 0 4px #ff8c00;
 }
-
 .message-input button {
   margin-left: 10px;
   padding: 10px 20px;
@@ -208,32 +217,35 @@ body, html {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
 .message-input button:hover {
-  background-color: #d65a00; /* Warna oranye yang lebih gelap saat hover */
+  background-color: #d65a00;
 }
-
-/* Fullscreen Responsif */
 @media (max-width: 768px) {
   .forum-header {
     font-size: 1.5rem;
   }
-
   .message {
     font-size: 0.9rem;
     padding: 8px;
   }
-
   .message-time {
     font-size: 10px;
   }
-
   .message-input input {
     padding: 8px;
   }
-
   .message-input button {
     padding: 8px 16px;
     font-size: 0.9rem;
   }
+}
+@property --tw-border-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
 }
