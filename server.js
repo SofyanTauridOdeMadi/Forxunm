@@ -17,7 +17,7 @@ app.use('/api', apiRoutes);
 
 // Rute untuk root (/) - Menampilkan halaman utama
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'auth.html'));
+    res.sendFile(path.join(__dirname, 'home.html'));
 });
 
 // Menangani permintaan ke auth.html

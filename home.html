@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H-Forum</title>
+  <!-- Link ke Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+  <!-- Container utama -->
+  <div class="flex h-screen">
+
+    <!-- Sidebar -->
+    <div class="w-1/4 bg-purple-500 p-4 text-white">
+      <h2 class="text-xl font-semibold">H-Forum</h2>
+      <ul class="mt-8 space-y-4">
+        <li><a href="#" class="block py-2 px-4 rounded hover:bg-purple-600">Home</a></li>
+        <li><a href="#" class="block py-2 px-4 rounded hover:bg-purple-600">Live Chat</a></li>
+        <li><a href="#" class="block py-2 px-4 rounded hover:bg-purple-600">Explore Topics</a></li>
+        <li><a href="#" class="block py-2 px-4 rounded hover:bg-purple-600">My Q&A</a></li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-8">
+      <h1 class="text-3xl font-bold mb-8">Discussions</h1>
+
+      <!-- Search Bar -->
+      <div class="mb-8">
+        <input type="text" class="w-full px-4 py-2 border rounded-lg" placeholder="Search for Topics..." />
+      </div>
+
+      <!-- Thread List -->
+      <div class="space-y-6">
+
+        <!-- Thread 1 -->
+        <div class="border p-4 rounded-lg shadow-lg bg-white">
+          <h3 class="text-xl font-semibold">How to solve integration problems</h3>
+          <p class="text-gray-600 mt-2">Some description...</p>
+          <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-500">Posted by Parth</span>
+            <div class="flex space-x-2">
+              <button class="bg-purple-500 text-white px-4 py-2 rounded">Upvote</button>
+              <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Reply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread 2 -->
+        <div class="border p-4 rounded-lg shadow-lg bg-white">
+          <h3 class="text-xl font-semibold">What is blockchain technology?</h3>
+          <p class="text-gray-600 mt-2">Discover the revolutionary technology of blockchain and its impact on digital currencies like Bitcoin.</p>
+          <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-500">Posted by Kartik</span>
+            <div class="flex space-x-2">
+              <button class="bg-purple-500 text-white px-4 py-2 rounded">Upvote</button>
+              <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Reply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread 3 -->
+        <div class="border p-4 rounded-lg shadow-lg bg-white">
+          <h3 class="text-xl font-semibold">How do machine learning algorithms work?</h3>
+          <p class="text-gray-600 mt-2">Explore the inner workings of machine learning and its practical uses in the ever-evolving landscape of AI.</p>
+          <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-500">Posted by Ritika</span>
+            <div class="flex space-x-2">
+              <button class="bg-purple-500 text-white px-4 py-2 rounded">Upvote</button>
+              <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Reply</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Start a New Topic Button -->
+      <div class="mt-8">
+        <button class="bg-green-500 text-white px-6 py-3 rounded-lg">Start a New Topic</button>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
