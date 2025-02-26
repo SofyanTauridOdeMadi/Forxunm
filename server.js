@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const apiRoutes = require('../api');
+const apiRoutes = require('./js/api');
 
 const app = express();
 
@@ -10,24 +10,25 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Menyajikan file statik dari root direktori
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'assets')));  // Folder untuk gambar dan file statik lainnya
+app.use(express.static(path.join(__dirname, 'css')));     // Folder untuk CSS
 
 // Endpoint untuk API
 app.use('/api', apiRoutes);
 
 // Rute untuk root (/) - Menampilkan halaman utama
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'home.html'));
+    res.sendFile(path.join(__dirname, 'html','home.html'));
 });
 
 // Menangani permintaan ke auth.html
 app.get('/auth.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'auth.html'));
+    res.sendFile(path.join(__dirname, 'html', 'auth.html'));
 });
 
 // Menangani permintaan ke chat.html
 app.get('/chat.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'chat.html'));
+    res.sendFile(path.join(__dirname, 'html', 'chat.html'));
 });
 
 // Jalankan server
