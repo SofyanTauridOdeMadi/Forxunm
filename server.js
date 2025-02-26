@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const apiRoutes = require('./js/api');
+const apiRoutes = require('./backend/api');
 
 const app = express();
 
