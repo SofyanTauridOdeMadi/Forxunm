@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>H-Forum</title>
-  <!-- Link to Bootstrap CSS -->
+  <!-- Link ke Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <style>
@@ -93,9 +93,15 @@
   <!-- Main Content -->
   <div class="d-flex flex-column min-vh-100">
 
+    <!-- Forum Header -->
+    <div class="bg-warning text-white text-center py-4 shadow-sm">
+      <h1 class="display-4">H-Forum</h1>
+      <p class="lead">Your platform for discussions!</p>
+    </div>
+
     <!-- Content for the forum -->
     <div class="p-5 flex-grow-1">
-      <h1 class="display-4 mb-4">Discussions</h1>
+      <h2 class="display-5 mb-4">Discussions</h2>
 
       <!-- Search Bar -->
       <div class="mb-4">
@@ -103,8 +109,7 @@
       </div>
 
       <!-- Thread List -->
-      <div class="space-y-4" id="threadList">
-
+      <div id="threadList">
         <!-- Thread 1 -->
         <div class="card shadow-lg mb-4" data-title="How to solve integration problems">
           <div class="card-body">
@@ -153,7 +158,7 @@
       </div>
 
       <!-- Start a New Topic Button -->
-      <div class="mt-4">
+      <div class="mt-4 text-center">
         <button class="btn btn-success btn-lg">Start a New Topic</button>
       </div>
     </div>
