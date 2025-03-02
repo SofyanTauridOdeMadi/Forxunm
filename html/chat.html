@@ -84,37 +84,6 @@
       background-color: #f57c00;
       color: white;
     }
-
-    /* Bottom bar navigation */
-    .bottom-bar {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: white;
-      box-shadow: 0px -2px 8px rgba(0, 0, 0, 0.1);
-      padding: 10px 0;
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      z-index: 100;
-    }
-
-    .bottom-bar .nav-link {
-      color: #f57c00;
-      font-size: 24px;
-    }
-
-    .bottom-bar .nav-link.active {
-      color: #fff;
-      background-color: #f57c00;
-      border-radius: 50%;
-    }
-
-    .bottom-bar .nav-link:hover {
-      color: #fff;
-      background-color: #ffb74d; /* Lighter orange */
-    }
   </style>
 </head>
 <body>
@@ -135,7 +104,7 @@
 
     <!-- Search Bar -->
     <div class="mb-4">
-      <input type="text" class="form-control" id="searchInput" placeholder="Search for Topics..." onkeyup="searchThreads()" />
+      <input type="text" class="form-control" id="searchInput" placeholder="Search for Livechat..." onkeyup="searchThreads()" />
     </div>
 
   <div class="d-flex flex-column min-vh-100">
@@ -153,17 +122,17 @@
     <div class="bottom-bar">
       <ul class="nav w-100 justify-content-around">
         <li class="nav-item">
-          <a class="nav-link active" href="home.html">
-            <i class="bi bi-house-door"></i> <!-- Home Icon -->
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link active" href="#">
             <i class="bi bi-chat"></i> <!-- Chat Icon -->
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="home.html">
+            <i class="bi bi-house-door"></i> <!-- Home Icon -->
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="profile.html">
             <i class="bi bi-person"></i> <!-- Profile Icon -->
           </a>
         </li>

@@ -35,7 +35,7 @@
   Digunakan untuk autentikasi dan manajemen database pengguna secara real-time.
 - **AES & RSA**  
   Sistem enkripsi untuk menjaga keamanan data pengguna dan komunikasi di dalam forum.
-- **Tailwind CSS**  
+- **Bootstrap CSS**  
   Untuk membuat tampilan lebih interaktif dan lebih kece.
 
 ---

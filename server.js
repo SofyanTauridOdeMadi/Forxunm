@@ -16,9 +16,14 @@ app.use(express.static(path.join(__dirname, 'css')));     // Folder untuk CSS
 // Endpoint untuk API
 app.use('/api', apiRoutes);
 
-// Rute untuk root (/) - Menampilkan halaman utama
+// Menampilkan halaman utama
 app.get('/home.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html','home.html'));
+});
+
+// Menampilkan halaman utama
+app.get('/profile.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'html','profile.html'));
 });
 
 // Menangani permintaan ke auth.html
