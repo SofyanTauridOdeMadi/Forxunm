@@ -3,13 +3,13 @@ const mysql = require('mysql2');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '', // Ubah sesuai dengan password MySQL Anda
-    database: 'secure_web' // Pastikan database ini ada
+    password: '',
+    database: 'secure_web'
 });
 
 db.connect((err) => {
     if (err) throw err;
-    console.log('Connected to MySQL');
+    console.log('Koneksi Database Berhasil');
 });
 
 module.exports = db;

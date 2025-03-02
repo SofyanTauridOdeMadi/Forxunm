@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ForXunm</title>
-  <!-- Link ke Bootstrap CSS -->
+  <title>ForXunm - Profile</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <style>
@@ -14,8 +13,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #fff; /* White background */
-      box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+      background-color: #fff;
+      box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
       padding: 10px 0;
       border-top-left-radius: 30px;
       border-top-right-radius: 30px;
@@ -25,65 +24,107 @@
       z-index: 100;
     }
 
-    /* Styling for each item in the bottom bar */
     .bottom-bar .nav-item {
       text-align: center;
     }
 
     .bottom-bar .nav-link {
-      color: #f57c00; /* Orange color */
-      font-size: 28px; /* Larger icons */
+      color: #f57c00;
+      font-size: 28px;
       padding: 10px 15px;
       display: block;
       border-radius: 50%;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* Hover effect for icons */
     .bottom-bar .nav-link:hover {
-      background-color: #ffb74d; /* Light orange background */
-      color: #fff; /* White text when hovered */
+      background-color: #ffb74d;
+      color: #fff;
     }
 
-    /* Active icon state */
     .bottom-bar .nav-link.active {
-      background-color: #f57c00; /* Active background color */
-      color: #fff; /* White icon when active */
+      background-color: #f57c00;
+      color: #fff;
     }
 
-    /* Custom body background and other elements */
     body {
-      background-color: #fff3e0; /* Light orange background */
-      color: #f57c00; /* Text color matching the orange theme */
+      background-color: #fff3e0;
+      color: #f57c00;
     }
 
-    /* Card styles */
     .card {
-      background-color: #fff; /* White card background */
-      border: 1px solid #f57c00; /* Orange border */
+      background-color: #fff;
+      border: 1px solid #f57c00;
     }
 
     .card-title {
-      color: #f57c00; /* Orange title color */
+      color: #f57c00;
     }
 
     .btn-purple {
-      background-color: #f57c00; /* Orange button color */
-      color: #fff; /* White text */
+      background-color: #f57c00;
+      color: #fff;
     }
 
     .btn-outline-secondary {
-      border-color: #f57c00; /* Orange border */
-      color: #f57c00; /* Orange text */
+      border-color: #f57c00;
+      color: #f57c00;
     }
 
     .btn-outline-secondary:hover {
-      background-color: #ffb74d; /* Light orange background on hover */
+      background-color: #ffb74d;
       color: white;
     }
 
     .btn-success {
-      background-color: #ff9800; /* Bright orange for the 'Start a New Topic' button */
+      background-color: #ff9800;
+      color: white;
+    }
+
+    /* Profile specific styles */
+    .profile-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .profile-header img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #f57c00;
+      margin-bottom: 10px;
+    }
+
+    .profile-info {
+      margin-top: 20px;
+    }
+
+    .profile-info label {
+      font-weight: bold;
+    }
+
+    .profile-info .form-control {
+      background-color: #f0f0f0;
+      border: 1px solid #f57c00;
+      color: #f57c00;
+    }
+
+    .profile-info .btn-update {
+      background-color: #ff9800;
+      color: white;
+    }
+
+    .profile-info .btn-outline {
+      color: #f57c00;
+    }
+
+    .profile-info .btn-outline:hover {
+      background-color: #ffb74d;
       color: white;
     }
   </style>
@@ -96,89 +137,65 @@
     <!-- Forum Header -->
     <div class="bg-warning text-white text-center py-4 shadow-sm">
       <h1 class="display-4">ForXunm</h1>
+      <form id="updateProfileForm"></form>
       <p class="lead">Platform for discussions!</p>
     </div>
 
-    <!-- Content for the forum -->
+    <!-- Profile Section -->
     <div class="p-5 flex-grow-1">
-      <h2 class="display-5 mb-4">Profile</h2>
+      <h2 class="display-5 mb-4">My Profile</h2>
 
-      <!-- Search Bar -->
-      <div class="mb-4">
-        <input type="text" class="form-control" id="searchInput" placeholder="Search for Topics..." onkeyup="searchThreads()" />
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <img src="profile-placeholder.jpg" alt="Profile Picture" id="profileImage">
+        <h3 id="username">Username123</h3>
+        <p class="text-muted">Member since: <span id="accountCreated">January 1, 2023</span></p>
       </div>
 
-      <!-- Thread List -->
-      <div id="threadList">
-        <!-- Thread 1 -->
-        <div class="card shadow-lg mb-4" data-title="How to solve integration problems">
-          <div class="card-body">
-            <h5 class="card-title">How to solve integration problems</h5>
-            <p class="card-text text-muted">Some description...</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <span class="text-muted">Posted by Stom</span>
-              <div class="btn-group">
-                <button class="btn btn-purple">Upvote</button>
-                <button class="btn btn-outline-secondary" onclick="openReplyModal('How to solve integration problems')">Reply</button>
-              </div>
-            </div>
-          </div>
+      <!-- Profile Information -->
+      <div class="profile-info">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="email" readonly>
         </div>
 
-        <!-- Thread 2 -->
-        <div class="card shadow-lg mb-4" data-title="What is blockchain technology?">
-          <div class="card-body">
-            <h5 class="card-title">What is blockchain technology?</h5>
-            <p class="card-text text-muted">Discover the revolutionary technology of blockchain and its impact on digital currencies like Bitcoin.</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <span class="text-muted">Posted by Kartik</span>
-              <div class="btn-group">
-                <button class="btn btn-purple">Upvote</button>
-                <button class="btn btn-outline-secondary" onclick="openReplyModal('What is blockchain technology?')">Reply</button>
-              </div>
-            </div>
-          </div>
+        <div class="mb-3">
+            <label for="bio" class="form-label">Bio</label>
+            <textarea class="form-control" id="bio" rows="4"></textarea>
         </div>
 
-        <!-- Thread 3 -->
-        <div class="card shadow-lg mb-4" data-title="How do machine learning algorithms work?">
-          <div class="card-body">
-            <h5 class="card-title">How do machine learning algorithms work?</h5>
-            <p class="card-text text-muted">Explore the inner workings of machine learning and its practical uses in the ever-evolving landscape of AI.</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <span class="text-muted">Posted by Ritika</span>
-              <div class="btn-group">
-                <button class="btn btn-purple">Upvote</button>
-                <button class="btn btn-outline-secondary" onclick="openReplyModal('How do machine learning algorithms work?')">Reply</button>
-              </div>
-            </div>
-          </div>
+        <div class="mb-3">
+            <label for="newPassword" class="form-label">New Password</label>
+            <input type="password" class="form-control" id="newPassword" placeholder="Leave blank to keep current password">
         </div>
 
+        <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+            <input type="password" class="form-control" id="confirmPassword">
+        </div>
+
+        <div class="text-center">
+            <button class="btn btn-update btn-lg" type="submit">Update Profile</button>
+            <button class="btn btn-outline-secondary btn-lg mt-2" type="button" onclick="uploadImage()">Upload Profile Picture</button>
+        </div>
       </div>
-
-      <!-- Start a New Topic Button -->
-      <div class="mt-3 text-center">
-        <button class="btn btn-success btn-lg">Start a New Topic</button>
-      </div>
-    </div>
 
     <!-- Bottom Bar (Navigation Bar with Icons) -->
     <div class="bottom-bar">
       <ul class="nav w-100 justify-content-around">
         <li class="nav-item">
           <a class="nav-link" href="chat.html">
-            <i class="bi bi-chat"></i> <!-- Chat Icon -->
+            <i class="bi bi-chat"></i>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="home.html">
-            <i class="bi bi-house-door"></i> <!-- Home Icon -->
+            <i class="bi bi-house-door"></i>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link active" href="#">
-            <i class="bi bi-person"></i> <!-- Profile Icon -->
+            <i class="bi bi-person"></i>
           </a>
         </li>
       </ul>
@@ -186,61 +203,25 @@
 
   </div>
 
-  <!-- Modal for Reply -->
-  <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+  <!-- Modal for Profile Picture Upload -->
+  <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="replyModalLabel">Reply to Topic</h5>
+          <h5 class="modal-title" id="uploadModalLabel">Upload Profile Picture</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <textarea class="form-control" id="replyContent" rows="4" placeholder="Write your reply..."></textarea>
+          <input type="file" class="form-control" id="fileInput">
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" onclick="submitReply()">Submit Reply</button>
+          <button type="button" class="btn btn-primary" onclick="saveProfileImage()">Save</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Link to Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Custom JavaScript -->
-  <script>
-    // Open reply modal
-    function openReplyModal(threadTitle) {
-      document.getElementById('replyModalLabel').innerText = 'Reply to: ' + threadTitle;
-      var replyModal = new bootstrap.Modal(document.getElementById('replyModal'));
-      replyModal.show();
-    }
-
-    // Submit reply
-    function submitReply() {
-      var replyContent = document.getElementById('replyContent').value;
-      if (replyContent) {
-        alert('Reply submitted: ' + replyContent);
-        document.getElementById('replyContent').value = ''; // Clear the textarea
-      } else {
-        alert('Please write a reply before submitting.');
-      }
-    }
-
-    // Search function to filter threads
-    function searchThreads() {
-      var searchQuery = document.getElementById('searchInput').value.toLowerCase();
-      var threads = document.getElementsByClassName('card');
-      for (var i = 0; i < threads.length; i++) {
-        var threadTitle = threads[i].getAttribute('data-title').toLowerCase();
-        if (threadTitle.includes(searchQuery)) {
-          threads[i].style.display = ''; // Show thread
-        } else {
-          threads[i].style.display = 'none'; // Hide thread
-        }
-      }
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

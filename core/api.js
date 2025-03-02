@@ -5,6 +5,39 @@ const db = require('./db');
 const router = express.Router();
 
 const JWT_SECRET = 'e5a02f9d2488cb7d09e019f15eeb9e4f14b9a0543b8cc5e9cdcc88b6e4e243c90e1b1e0a0f37922dfabbf365ab407623'; // Ganti dengan kunci rahasia Anda
+const multer = require('multer');
+const path = require('path');
+
+// Tentukan penyimpanan file gambar
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Menyimpan gambar di folder 'uploads'
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Menyimpan file dengan nama unik
+  },
+});
+
+const upload = multer({ storage });
+
+// Endpoint untuk upload gambar profil
+router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const userId = req.user.id;
+  const profileImageUrl = `/uploads/${req.file.filename}`; // Path file yang di-upload
+  
+  try {
+    // Update URL gambar profil di database
+    await pool.query('UPDATE users SET profile_picture_url = $1 WHERE id = $2', [profileImageUrl, userId]);
+    res.json({ status: true, profile_image_url: profileImageUrl });
+  } catch (err) {
+    console.error('Error saving profile image URL:', err.message);
+    res.status(500).json({ error: 'Failed to save profile image URL' });
+  }
+});
 
 // Middleware untuk memverifikasi JWT
 function verifyJWT(req, res, next) {
@@ -70,6 +103,39 @@ router.post('/login', (req, res) => {
       res.status(401).json({ error: 'Invalid username or password' });
     }
   });
+});
+
+// Mendapatkan profil pengguna
+router.get('/user-profile', verifyJWT, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const result = await pool.query('SELECT username, email, bio FROM users WHERE id = $1', [userId]);
+    if (result.rows.length > 0) {
+      res.json({ status: true, user: result.rows[0] });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load user profile' });
+  }
+});
+
+// Memperbarui profil pengguna
+router.post('/update-profile', verifyJWT, async (req, res) => {
+  const userId = req.user.id;
+  const { bio, newPassword } = req.body;
+
+  try {
+    if (newPassword) {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await pool.query('UPDATE users SET bio = $1, password = $2 WHERE id = $3', [bio, hashedPassword, userId]);
+    } else {
+      await pool.query('UPDATE users SET bio = $1 WHERE id = $2', [bio, userId]);
+    }
+    res.json({ status: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
 });
 
 // Endpoint untuk Mengirim Pesan
