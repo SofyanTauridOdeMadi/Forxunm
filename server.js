@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'css')));     // Folder untuk CSS
 app.use('/api', apiRoutes);
 
 // Rute untuk root (/) - Menampilkan halaman utama
-app.get('/', (req, res) => {
+app.get('/home.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'html','home.html'));
 });
 
