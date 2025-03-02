@@ -97,37 +97,41 @@ document.addEventListener('DOMContentLoaded', () => {
     async function saveProfileImage() {
         const fileInput = document.getElementById('fileInput');
         const file = fileInput.files[0];
-
+      
         if (!file) {
-            alert('Please select a file.');
-            return;
+          alert('Please select a file.');
+          return;
         }
-
+      
         const formData = new FormData();
-        formData.append('profile_image', file);
-
+        formData.append('profile_image', file); // Menambahkan file ke FormData
+      
+        const token = localStorage.getItem('token'); // Ambil token dari localStorage
+      
         try {
-            const response = await fetch('/api/upload-profile-image', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: formData,
-            });
-
-            const result = await response.json();
-
-            if (result.status) {
-                alert('Profile image updated successfully!');
-                document.getElementById('profileImage').src = result.profile_image_url;
-                const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
-                uploadModal.hide();
-            } else {
-                alert(result.error || 'Failed to upload profile image');
-            }
+          const response = await fetch('/api/upload-profile-image', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`, // Mengirim token untuk autentikasi
+            },
+            body: formData,
+          });
+      
+          const result = await response.json();
+      
+          if (result.status) {
+            alert('Profile image updated successfully!');
+            // Menampilkan gambar profil yang baru di halaman
+            document.getElementById('profileImage').src = result.profile_image_url;
+            // Menutup modal upload
+            const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+            uploadModal.hide();
+          } else {
+            alert(result.error || 'Failed to upload profile image');
+          }
         } catch (error) {
-            console.error('Error uploading profile image:', error);
-            alert('Failed to upload profile image');
+          console.error('Error uploading profile image:', error);
+          alert('Failed to upload profile image');
         }
-    }
+      }      
 });

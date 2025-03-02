@@ -110,56 +110,12 @@
 
       <!-- Thread List -->
       <div id="threadList">
-        <!-- Thread 1 -->
-        <div class="card shadow-lg mb-4" data-title="How to solve integration problems">
-          <div class="card-body">
-            <h5 class="card-title">How to solve integration problems</h5>
-            <p class="card-text text-muted">Some description...</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <span class="text-muted">Posted by Stom</span>
-              <div class="btn-group">
-                <button class="btn btn-purple">Upvote</button>
-                <button class="btn btn-outline-secondary" onclick="openReplyModal('How to solve integration problems')">Reply</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Thread 2 -->
-        <div class="card shadow-lg mb-4" data-title="What is blockchain technology?">
-          <div class="card-body">
-            <h5 class="card-title">What is blockchain technology?</h5>
-            <p class="card-text text-muted">Discover the revolutionary technology of blockchain and its impact on digital currencies like Bitcoin.</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <span class="text-muted">Posted by Kartik</span>
-              <div class="btn-group">
-                <button class="btn btn-purple">Upvote</button>
-                <button class="btn btn-outline-secondary" onclick="openReplyModal('What is blockchain technology?')">Reply</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Thread 3 -->
-        <div class="card shadow-lg mb-4" data-title="How do machine learning algorithms work?">
-          <div class="card-body">
-            <h5 class="card-title">How do machine learning algorithms work?</h5>
-            <p class="card-text text-muted">Explore the inner workings of machine learning and its practical uses in the ever-evolving landscape of AI.</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <span class="text-muted">Posted by Ritika</span>
-              <div class="btn-group">
-                <button class="btn btn-purple">Upvote</button>
-                <button class="btn btn-outline-secondary" onclick="openReplyModal('How do machine learning algorithms work?')">Reply</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <!-- Threads will be populated dynamically here -->
       </div>
 
       <!-- Start a New Topic Button -->
       <div class="mt-3 text-center">
-        <button class="btn btn-success btn-lg">Start a New Topic</button>
+        <button class="btn btn-success btn-lg" onclick="openCreateThreadForm()">Start a New Topic</button>
       </div>
     </div>
 
@@ -186,6 +142,26 @@
 
   </div>
 
+  <!-- Modal for Create New Thread -->
+  <div class="modal fade" id="createThreadModal" tabindex="-1" aria-labelledby="createThreadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createThreadModalLabel">Create New Topic</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" class="form-control mb-3" id="newThreadTitle" placeholder="Enter thread title">
+          <textarea class="form-control" id="newThreadContent" rows="4" placeholder="Enter thread content"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="createThread()">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal for Reply -->
   <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -205,42 +181,11 @@
     </div>
   </div>
 
-  <!-- Link to Bootstrap JS -->
+  <!-- Bootstrap and jQuery Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Custom JavaScript -->
-  <script>
-    // Open reply modal
-    function openReplyModal(threadTitle) {
-      document.getElementById('replyModalLabel').innerText = 'Reply to: ' + threadTitle;
-      var replyModal = new bootstrap.Modal(document.getElementById('replyModal'));
-      replyModal.show();
-    }
+  <script src="/core/home.js"></script>
 
-    // Submit reply
-    function submitReply() {
-      var replyContent = document.getElementById('replyContent').value;
-      if (replyContent) {
-        alert('Reply submitted: ' + replyContent);
-        document.getElementById('replyContent').value = ''; // Clear the textarea
-      } else {
-        alert('Please write a reply before submitting.');
-      }
-    }
-
-    // Search function to filter threads
-    function searchThreads() {
-      var searchQuery = document.getElementById('searchInput').value.toLowerCase();
-      var threads = document.getElementsByClassName('card');
-      for (var i = 0; i < threads.length; i++) {
-        var threadTitle = threads[i].getAttribute('data-title').toLowerCase();
-        if (threadTitle.includes(searchQuery)) {
-          threads[i].style.display = ''; // Show thread
-        } else {
-          threads[i].style.display = 'none'; // Hide thread
-        }
-      }
-    }
-  </script>
 </body>
 </html>

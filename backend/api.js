@@ -8,6 +8,85 @@ const JWT_SECRET = 'e5a02f9d2488cb7d09e019f15eeb9e4f14b9a0543b8cc5e9cdcc88b6e4e2
 const multer = require('multer');
 const path = require('path');
 
+// **GET**: Mendapatkan semua thread
+router.get('/threads', (req, res) => {
+  const query = 'SELECT * FROM threads WHERE is_deleted = 0';
+  db.query(query, (err, results) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+      } else {
+          res.json(results); // Mengirimkan data thread dalam format JSON
+      }
+  });
+});
+
+// **POST**: Membuat thread baru
+router.post('/threads', express.json(), (req, res) => {
+  const { user_id, title, content } = req.body;
+  const query = 'INSERT INTO threads (user_id, title, content) VALUES (?, ?, ?)';
+  db.query(query, [user_id, title, content], (err, result) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+      } else {
+          res.status(201).json({ thread_id: result.insertId });
+      }
+  });
+});
+
+// **POST**: Memberikan upvote pada thread
+router.post('/threads/:id/upvote', (req, res) => {
+  const threadId = req.params.id;
+  const query = 'UPDATE threads SET upvotes = upvotes + 1 WHERE thread_id = ?';
+  db.query(query, [threadId], (err, result) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+      } else {
+          res.status(200).json({ message: 'Upvoted successfully!' });
+      }
+  });
+});
+
+// **GET**: Mendapatkan semua balasan untuk thread tertentu
+router.get('/threads/:id/replies', (req, res) => {
+  const threadId = req.params.id;
+  const query = 'SELECT * FROM replies WHERE thread_id = ? AND is_deleted = 0';
+  db.query(query, [threadId], (err, results) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+      } else {
+          res.json(results);
+      }
+  });
+});
+
+// **POST**: Membalas thread
+router.post('/threads/:id/reply', express.json(), (req, res) => {
+  const threadId = req.params.id;
+  const { user_id, content } = req.body;
+  const query = 'INSERT INTO replies (thread_id, user_id, content) VALUES (?, ?, ?)';
+  db.query(query, [threadId, user_id, content], (err, result) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+      } else {
+          res.status(201).json({ reply_id: result.insertId });
+      }
+  });
+});
+
+// **DELETE**: Menghapus thread (soft delete)
+router.delete('/threads/:id', (req, res) => {
+  const threadId = req.params.id;
+  const query = 'UPDATE threads SET is_deleted = 1 WHERE thread_id = ?';
+  db.query(query, [threadId], (err, result) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+      } else {
+          res.status(200).json({ message: 'Thread deleted successfully!' });
+      }
+  });
+});
+
+
 // Tentukan penyimpanan file gambar
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
