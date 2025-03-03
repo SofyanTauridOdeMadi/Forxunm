@@ -7,7 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    /* Custom styles for the bottom bar */
+    /* Styling untuk bottom bar */
     .bottom-bar {
       position: fixed;
       left: 0;
@@ -81,7 +81,7 @@
       color: white;
     }
 
-    /* Profile specific styles */
+    /* Styling untuk header profil */
     .profile-header {
       display: flex;
       justify-content: center;
@@ -127,6 +127,20 @@
       background-color: #ffb74d;
       color: white;
     }
+
+    .profile-info .btn-logout {
+      background-color: #ff5c5c;
+      color: white;
+    }
+
+    .profile-info .btn-logout:hover {
+      background-color: #ff3b3b;
+    }
+
+    /* Adjustments for the bottom bar */
+    .d-flex.p-3.bg-warning {
+      padding-bottom: 120px; /* Adjusting to avoid overlap */
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -147,9 +161,9 @@
 
       <!-- Profile Header -->
       <div class="profile-header">
-        <img src="profile-placeholder.jpg" alt="Profile Picture" id="profileImage">
-        <h3 id="username">Username123</h3>
-        <p class="text-muted">Member since: <span id="accountCreated">January 1, 2023</span></p>
+        <img src="/default_profile.jpeg" alt="Profile Picture" id="profileImage">
+        <h3 id="username">A ii o A ii</h3>
+        <p class="text-muted">Member since: <span id="accountCreated">February 26, 2025</span></p>
       </div>
 
       <!-- Profile Information -->
@@ -176,6 +190,7 @@
 
         <div class="text-center">
             <button class="btn btn-update btn-lg" type="submit">Update Profile</button>
+            <button class="btn btn-logout btn-lg mt-2" type="button" onclick="logout()">Logout</button>
             <button class="btn btn-outline-secondary btn-lg mt-2" type="button" onclick="uploadImage()">Upload Profile Picture</button>
         </div>
       </div>
@@ -185,17 +200,17 @@
       <ul class="nav w-100 justify-content-around">
         <li class="nav-item">
           <a class="nav-link" href="chat.html">
-            <i class="bi bi-chat"></i>
+            <i class="bi bi-chat"></i> <!-- Chat Icon -->
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="home.html">
-            <i class="bi bi-house-door"></i>
+            <i class="bi bi-house-door"></i> <!-- Home Icon -->
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link active" href="#">
-            <i class="bi bi-person"></i>
+            <i class="bi bi-person"></i> <!-- Profile Icon -->
           </a>
         </li>
       </ul>
@@ -222,141 +237,62 @@
     </div>
   </div>
 
-  <script src="/core/profile.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     if (!token) {
         alert('Token not found. Please log in again.');
-        window.location.href = 'auth.html';
+        window.location.href = 'auth.html'; // Mengarahkan ke halaman login jika token tidak ada
         return;
     }
 
+    // Ambil elemen-elemen yang akan diubah
     const usernameElement = document.getElementById('username');
     const accountCreatedElement = document.getElementById('accountCreated');
     const profileImageElement = document.getElementById('profileImage');
     const emailElement = document.getElementById('email');
     const bioElement = document.getElementById('bio');
 
-    async function loadUserProfile() {
-        try {
-            const response = await fetch('/api/user-profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
+    try {
+        const userProfile = await fetchUserProfile(); // Memanggil API untuk mengambil data profil
 
-            const result = await response.json();
-
-            if (result.status && result.user) {
-                usernameElement.textContent = result.user.username;
-                accountCreatedElement.textContent = new Date(result.user.created_at).toLocaleDateString();
-                emailElement.value = result.user.email;
-                bioElement.value = result.user.bio || '';
-
-                if (result.user.profile_picture_url) {
-                    profileImageElement.src = result.user.profile_picture_url;
-                }
-
-            } else {
-                alert(result.error || 'Failed to load user profile');
+        // Perbarui data pengguna di halaman
+        if (userProfile) {
+            usernameElement.textContent = userProfile.username;
+            accountCreatedElement.textContent = new Date(userProfile.created_at).toLocaleDateString();
+            emailElement.value = userProfile.email;
+            bioElement.value = userProfile.bio || ''; // Menampilkan bio jika ada
+            if (userProfile.profile_picture_url) {
+                profileImageElement.src = userProfile.profile_picture_url;
             }
-        } catch (error) {
-            console.error('Error loading user profile:', error);
-            alert('Failed to load user profile');
         }
+    } catch (error) {
+        console.error('Error loading profile:', error);
     }
+  });
 
-    // Fungsi untuk memperbarui profil pengguna
-    async function updateProfile() {
-        const bio = bioElement.value.trim();
-        const newPassword = document.getElementById('newPassword').value.trim();
-        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+  // Fungsi logout
+  function logout() {
+      localStorage.removeItem('token');
+      window.location.href = 'auth.html'; // Redirect ke halaman login
+  }
 
-        if (newPassword && newPassword !== confirmPassword) {
-            alert('Passwords do not match!');
-            return;
-        }
-
-        const payload = {
-            bio,
-            newPassword: newPassword || undefined,
-        };
-
-        try {
-            const response = await fetch('/api/update-profile', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-            });
-
-            const result = await response.json();
-            if (result.status) {
-                alert('Profile updated successfully!');
-                loadUserProfile(); // Muat ulang profil
-            } else {
-                alert(result.error || 'Failed to update profile');
-            }
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            alert('Failed to update profile');
-        }
-    }
-
-    const updateProfileForm = document.getElementById('updateProfileForm');
-    updateProfileForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        updateProfile();
+  async function fetchUserProfile() {
+    const token = localStorage.getItem('token');
+    const response = await fetch('/api/user-profile', {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
     });
 
-    // Muat profil pengguna saat halaman dimuat
-    loadUserProfile();
+    const result = await response.json();
 
-    function uploadImage() {
-        const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
-        uploadModal.show();
+    if (result.status && result.user) {
+        return result.user;
+    } else {
+        alert(result.error || 'Failed to load user profile');
     }
-
-    async function saveProfileImage() {
-        const fileInput = document.getElementById('fileInput');
-        const file = fileInput.files[0];
-
-        if (!file) {
-            alert('Please select a file.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('profile_image', file);
-
-        try {
-            const response = await fetch('/api/upload-profile-image', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: formData,
-            });
-
-            const result = await response.json();
-
-            if (result.status) {
-                alert('Profile image updated successfully!');
-                document.getElementById('profileImage').src = result.profile_image_url;
-                const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
-                uploadModal.hide();
-            } else {
-                alert(result.error || 'Failed to upload profile image');
-            }
-        } catch (error) {
-            console.error('Error uploading profile image:', error);
-            alert('Failed to upload profile image');
-        }
-    }
-});
+  }
   </script>
 </body>
 </html>
