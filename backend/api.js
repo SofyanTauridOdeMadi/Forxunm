@@ -98,31 +98,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Endpoint untuk upload gambar profil
-router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const userId = req.user.id;
-  const profileImageUrl = `/uploads/${req.file.filename}`; // Path file yang di-upload
-  
-  try {
-    // Update URL gambar profil di database
-    const query = 'UPDATE users SET profile_picture_url = ? WHERE id = ?';
-    db.query(query, [profileImageUrl, userId], (err, result) => {
-      if (err) {
-        console.error('Error saving profile image URL:', err.message);
-        return res.status(500).json({ error: 'Failed to save profile image URL' });
-      }
-      res.json({ status: true, profile_image_url: profileImageUrl });
-    });
-  } catch (err) {
-    console.error('Error saving profile image URL:', err.message);
-    res.status(500).json({ error: 'Failed to save profile image URL' });
-  }
-});
-
 // Middleware untuk memverifikasi JWT
 function verifyJWT(req, res, next) {
   const token = req.headers['authorization']?.split(' ')[1];
@@ -170,14 +145,14 @@ router.get('/user-profile', verifyJWT, (req, res) => {
 // Memperbarui profil pengguna
 router.post('/update-profile', verifyJWT, (req, res) => {
   const userId = req.user.id;
-  const { bio, newPassword } = req.body;
-  
-  let query = 'UPDATE users SET bio = ? WHERE id = ?';
-  const params = [bio, userId];
+  const { email, bio, newPassword } = req.body;
+
+  let query = 'UPDATE users SET bio = ?, email = ? WHERE id = ?';
+  const params = [bio, email, userId];
 
   if (newPassword) {
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
-    query = 'UPDATE users SET bio = ?, password = ? WHERE id = ?';
+    query = 'UPDATE users SET bio = ?, email = ?, password = ? WHERE id = ?';
     params.push(hashedPassword);
   }
 
@@ -187,6 +162,26 @@ router.post('/update-profile', verifyJWT, (req, res) => {
       return res.status(500).json({ error: 'Failed to update profile' });
     }
     res.json({ status: true });
+  });
+});
+
+// Endpoint untuk upload gambar profil
+router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const userId = req.user.id;
+  const profileImageUrl = `${req.file.filename}`; // Path file yang di-upload
+  
+  // Update URL gambar profil di database
+  const query = 'UPDATE users SET profile_picture_url = ? WHERE id = ?';
+  db.query(query, [profileImageUrl, userId], (err, result) => {
+    if (err) {
+      console.error('Error saving profile image URL:', err.message);
+      return res.status(500).json({ error: 'Failed to save profile image URL' });
+    }
+    res.json({ status: true, profile_image_url: profileImageUrl });
   });
 });
 

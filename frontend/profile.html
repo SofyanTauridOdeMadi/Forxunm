@@ -137,11 +137,6 @@
       background-color: #ff3b3b;
     }
 
-    /* Adjustments for the bottom bar */
-    .d-flex.p-3.bg-warning {
-      padding-bottom: 120px; /* Adjusting to avoid overlap */
-    }
-
     .profile-info .btn-hide {
       background-color: #cccccc;
       color: white;
@@ -175,7 +170,7 @@
       <div class="profile-info">
         <div class="mb-3">
             <label for="email" class="form-label">Email Address</label>
-            <input type="email" class="form-control" id="email" readonly>
+            <input type="email" class="form-control" id="email">
         </div>
 
         <div class="mb-3">
@@ -193,9 +188,20 @@
             <input type="password" class="form-control" id="confirmPassword">
         </div>
 
+        <!-- CSRF Token Field -->
+        <div class="mb-3">
+          <input type="hidden" id="csrfToken" value="<%= csrfToken %>"> <!-- CSRF Token -->
+        </div>
+
+        <div class="mb-3">
+          <label for="Profile" class="form-label">Select Profile Image</label>
+          <input type="file" class="form-control" id="fileInput" />
+        </div>
+
         <div class="text-center">
             <button class="btn btn-update btn-lg" type="button" onclick="updateProfile()">Update Profile</button>
             <button class="btn btn-logout btn-lg mt-2" type="button" onclick="logout()">Logout</button>
+            <button class="btn btn-outline-secondary btn-lg mt-2" type="button" onclick="uploadProfileImage()">Upload Profile Picture</button>
         </div>
       </div>
 
@@ -279,39 +285,66 @@
     }
   }
 
-  // Fungsi untuk memperbarui profil
-  async function updateProfile() {
-    const token = localStorage.getItem('token');
-    const email = document.getElementById('email').value;
-    const bio = document.getElementById('bio').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    // Fungsi untuk memperbarui profil
+    async function updateProfile() {
+      const token = localStorage.getItem('token');
+      const email = document.getElementById('email').value;
+      const bio = document.getElementById('bio').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const csrfToken = document.getElementById('csrfToken').value; // Ambil CSRF Token
 
+    // Validasi bahwa password baru dan konfirmasi password harus sama
     if (newPassword && newPassword !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
+      alert('Passwords do not match!');
+      return;
     }
 
     const body = {
-        email,
-        bio,
-        newPassword: newPassword || null,
+      email,
+      bio,
+      newPassword: newPassword || null, // Hanya kirim password baru jika ada
+      csrfToken, // Kirim CSRF Token untuk validasi
     };
 
     const response = await fetch('/api/update-profile', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     });
 
     const result = await response.json();
     if (result.status) {
-        alert('Profile updated successfully');
+      alert('Profile updated successfully');
     } else {
-        alert(result.error || 'Failed to update profile');
+      alert(result.error || 'Failed to update profile');
+    }
+  }
+
+  async function uploadProfileImage() {
+    const token = localStorage.getItem('token');
+    const fileInput = document.getElementById('fileInput');
+    const formData = new FormData();
+    formData.append('profile_image', fileInput.files[0]);
+
+    // Mengirim permintaan upload gambar profil ke server
+    const response = await fetch('/api/upload-profile-image', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+    if (result.status) {
+      document.getElementById('profileImage').src = result.profile_image_url; // Update gambar profil
+      alert('Profile image uploaded successfully');
+    } else {
+      alert(result.error || 'Failed to upload profile image');
     }
   }
 
