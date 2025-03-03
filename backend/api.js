@@ -86,8 +86,7 @@ router.delete('/threads/:id', (req, res) => {
   });
 });
 
-
-// Tentukan penyimpanan file gambar
+// Endpoint untuk upload gambar profil
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // Menyimpan gambar di folder 'uploads'
@@ -110,8 +109,14 @@ router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), 
   
   try {
     // Update URL gambar profil di database
-    await pool.query('UPDATE users SET profile_picture_url = $1 WHERE id = $2', [profileImageUrl, userId]);
-    res.json({ status: true, profile_image_url: profileImageUrl });
+    const query = 'UPDATE users SET profile_picture_url = ? WHERE id = ?';
+    db.query(query, [profileImageUrl, userId], (err, result) => {
+      if (err) {
+        console.error('Error saving profile image URL:', err.message);
+        return res.status(500).json({ error: 'Failed to save profile image URL' });
+      }
+      res.json({ status: true, profile_image_url: profileImageUrl });
+    });
   } catch (err) {
     console.error('Error saving profile image URL:', err.message);
     res.status(500).json({ error: 'Failed to save profile image URL' });
@@ -143,78 +148,46 @@ function verifyJWT(req, res, next) {
   });
 }
 
-// Register Endpoint
-router.post('/register', (req, res) => {
-  const { username, password } = req.body;
+// Mendapatkan profil pengguna
+router.get('/user-profile', verifyJWT, (req, res) => {
+  const userId = req.user.id;
+  const query = 'SELECT username, email, bio, profile_picture_url, created_at FROM users WHERE id = ?';
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
-  }
-
-  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-  const sql = 'INSERT INTO users (username, password) VALUES (?, ?)';
-
-  db.query(sql, [username, hashedPassword], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ status: 'Registration successful' });
-  });
-});
-
-// Endpoint Login
-router.post('/login', (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
-  }
-
-  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-  const sql = 'SELECT id FROM users WHERE username = ? AND password = ?';
-
-  db.query(sql, [username, hashedPassword], (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Error retrieving user profile:', err.message);
+      return res.status(500).json({ error: 'Failed to load user profile' });
+    }
 
     if (results.length > 0) {
-      const token = jwt.sign({ id: results[0].id, username }, JWT_SECRET, { expiresIn: '1h' });
-      console.log('Generated Token:', token); // Debug token yang dihasilkan
-      res.json({ status: 'Login successful', token });
-    } else {
-      res.status(401).json({ error: 'Invalid username or password' });
-    }
-  });
-});
-
-// Mendapatkan profil pengguna
-router.get('/user-profile', verifyJWT, async (req, res) => {
-  const userId = req.user.id;
-  try {
-    const result = await pool.query('SELECT username, email, bio FROM users WHERE id = $1', [userId]);
-    if (result.rows.length > 0) {
-      res.json({ status: true, user: result.rows[0] });
+      res.json({ status: true, user: results[0] });
     } else {
       res.status(404).json({ error: 'User not found' });
     }
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to load user profile' });
-  }
+  });
 });
 
 // Memperbarui profil pengguna
-router.post('/update-profile', verifyJWT, async (req, res) => {
+router.post('/update-profile', verifyJWT, (req, res) => {
   const userId = req.user.id;
   const { bio, newPassword } = req.body;
+  
+  let query = 'UPDATE users SET bio = ? WHERE id = ?';
+  const params = [bio, userId];
 
-  try {
-    if (newPassword) {
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await pool.query('UPDATE users SET bio = $1, password = $2 WHERE id = $3', [bio, hashedPassword, userId]);
-    } else {
-      await pool.query('UPDATE users SET bio = $1 WHERE id = $2', [bio, userId]);
+  if (newPassword) {
+    const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
+    query = 'UPDATE users SET bio = ?, password = ? WHERE id = ?';
+    params.push(hashedPassword);
+  }
+
+  db.query(query, params, (err, result) => {
+    if (err) {
+      console.error('Error updating profile:', err.message);
+      return res.status(500).json({ error: 'Failed to update profile' });
     }
     res.json({ status: true });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update profile' });
-  }
+  });
 });
 
 // Endpoint untuk Mengirim Pesan
@@ -288,6 +261,47 @@ router.post('/reset-password', (req, res) => {
   db.query(sql, [hashedPassword, username], (err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ status: 'Password updated successfully' });
+  });
+});
+
+// Register Endpoint
+router.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
+  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+  const sql = 'INSERT INTO users (username, password) VALUES (?, ?)';
+
+  db.query(sql, [username, hashedPassword], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ status: 'Registration successful' });
+  });
+});
+
+// Endpoint Login
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
+  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+  const sql = 'SELECT id FROM users WHERE username = ? AND password = ?';
+
+  db.query(sql, [username, hashedPassword], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    if (results.length > 0) {
+      const token = jwt.sign({ id: results[0].id, username }, JWT_SECRET, { expiresIn: '1h' });
+      console.log('Generated Token:', token); // Debug token yang dihasilkan
+      res.json({ status: 'Login successful', token });
+    } else {
+      res.status(401).json({ error: 'Invalid username or password' });
+    }
   });
 });
 

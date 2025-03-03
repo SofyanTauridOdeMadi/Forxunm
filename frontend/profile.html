@@ -141,6 +141,11 @@
     .d-flex.p-3.bg-warning {
       padding-bottom: 120px; /* Adjusting to avoid overlap */
     }
+
+    .profile-info .btn-hide {
+      background-color: #cccccc;
+      color: white;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -189,9 +194,8 @@
         </div>
 
         <div class="text-center">
-            <button class="btn btn-update btn-lg" type="submit">Update Profile</button>
+            <button class="btn btn-update btn-lg" type="button" onclick="updateProfile()">Update Profile</button>
             <button class="btn btn-logout btn-lg mt-2" type="button" onclick="logout()">Logout</button>
-            <button class="btn btn-outline-secondary btn-lg mt-2" type="button" onclick="uploadImage()">Upload Profile Picture</button>
         </div>
       </div>
 
@@ -209,32 +213,13 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="#">
+          <a class="nav-link active" href="#" onclick="toggleProfileEdit()">
             <i class="bi bi-person"></i> <!-- Profile Icon -->
           </a>
         </li>
       </ul>
     </div>
 
-  </div>
-
-  <!-- Modal for Profile Picture Upload -->
-  <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="uploadModalLabel">Upload Profile Picture</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <input type="file" class="form-control" id="fileInput">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" onclick="saveProfileImage()">Save</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -292,6 +277,47 @@
     } else {
         alert(result.error || 'Failed to load user profile');
     }
+  }
+
+  // Fungsi untuk memperbarui profil
+  async function updateProfile() {
+    const token = localStorage.getItem('token');
+    const email = document.getElementById('email').value;
+    const bio = document.getElementById('bio').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (newPassword && newPassword !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+    }
+
+    const body = {
+        email,
+        bio,
+        newPassword: newPassword || null,
+    };
+
+    const response = await fetch('/api/update-profile', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+    });
+
+    const result = await response.json();
+    if (result.status) {
+        alert('Profile updated successfully');
+    } else {
+        alert(result.error || 'Failed to update profile');
+    }
+  }
+
+  function toggleProfileEdit() {
+    // Show/hide the profile editing form
+    document.querySelector('.profile-info').classList.toggle('d-none');
   }
   </script>
 </body>
