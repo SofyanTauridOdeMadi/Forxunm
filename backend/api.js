@@ -86,6 +86,7 @@ router.delete('/threads/:id', (req, res) => {
   });
 });
 
+// Endpoint untuk upload gambar profil
 // Konfigurasi penyimpanan dan filter file
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -137,6 +138,31 @@ router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), 
     res.json({ status: true, profile_image_url: profileImageUrl });
   });
 });
+
+// Middleware untuk memverifikasi JWT
+function verifyJWT(req, res, next) {
+  const token = req.headers['authorization']?.split(' ')[1];
+  console.log('Received Token:', token); // Log token yang diterima server
+
+  if (!token) {
+    console.error('No token provided.');
+    return res.status(403).json({ error: 'No token provided' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      console.error('Token verification failed:', err.message); // Log error verifikasi token
+      if (err.name === 'TokenExpiredError') {
+        return res.status(403).json({ error: 'Token has expired. Please log in again.' });
+      }
+      return res.status(403).json({ error: 'Failed to authenticate token' });
+    }
+
+    console.log('Token verified:', decoded); // Log hasil verifikasi token
+    req.user = decoded; // Token valid, simpan data user
+    next();
+  });
+}
 
 // Mendapatkan profil pengguna
 router.get('/user-profile', verifyJWT, (req, res) => {
