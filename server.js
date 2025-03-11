@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Menyajikan file statik dari root direktori
-app.use(express.static(path.join(__dirname, 'assets')));  // Folder untuk gambar dan file statik lainnya
+app.use(express.static(path.join(__dirname, 'assets')));  // Folder untuk gambar
 app.use(express.static(path.join(__dirname, 'uploads'))); // Folder untuk Uploads
 
 // Endpoint untuk API

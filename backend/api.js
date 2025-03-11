@@ -86,42 +86,57 @@ router.delete('/threads/:id', (req, res) => {
   });
 });
 
-// Endpoint untuk upload gambar profil
+// Konfigurasi penyimpanan dan filter file
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Menyimpan gambar di folder 'uploads'
+    cb(null, 'uploads/'); // Tentukan direktori untuk menyimpan gambar
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Menyimpan file dengan nama unik
-  },
+    cb(null, Date.now() + '-' + file.originalname); // Membuat nama file unik berdasarkan timestamp
+  }
 });
 
-const upload = multer({ storage });
+// Filter file untuk hanya menerima gambar
+const fileFilter = (req, file, cb) => {
+  // Menentukan tipe MIME yang diizinkan (hanya gambar)
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true); // Izinkan file jika tipe MIME-nya adalah gambar
+  } else {
+    cb(new Error('File must be an image'), false); // Tolak file jika bukan gambar
+  }
+};
 
-// Middleware untuk memverifikasi JWT
-function verifyJWT(req, res, next) {
-  const token = req.headers['authorization']?.split(' ')[1];
-  console.log('Received Token:', token); // Log token yang diterima server
+// Konfigurasi batas ukuran file maksimal (5MB)
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // Maksimal 5MB
+});
 
-  if (!token) {
-    console.error('No token provided.');
-    return res.status(403).json({ error: 'No token provided' });
+// Endpoint untuk upload gambar profil
+router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), (req, res) => {
+  // Jika file tidak ada atau ukuran file terlalu besar
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded or invalid file format' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) {
-      console.error('Token verification failed:', err.message); // Log error verifikasi token
-      if (err.name === 'TokenExpiredError') {
-        return res.status(403).json({ error: 'Token has expired. Please log in again.' });
-      }
-      return res.status(403).json({ error: 'Failed to authenticate token' });
-    }
+  if (req.file.size > 5 * 1024 * 1024) { // Cek jika ukuran file lebih dari 5MB
+    return res.status(400).json({ error: 'File size exceeds 5MB limit' });
+  }
 
-    console.log('Token verified:', decoded); // Log hasil verifikasi token
-    req.user = decoded; // Token valid, simpan data user
-    next();
+  const userId = req.user.id;
+  const profileImageUrl = `${req.file.filename}`; // Path file yang di-upload
+  
+  // Update URL gambar profil di database
+  const query = 'UPDATE users SET profile_picture_url = ? WHERE id = ?';
+  db.query(query, [profileImageUrl, userId], (err, result) => {
+    if (err) {
+      console.error('Error saving profile image URL:', err.message);
+      return res.status(500).json({ error: 'Failed to save profile image URL' });
+    }
+    res.json({ status: true, profile_image_url: profileImageUrl });
   });
-}
+});
 
 // Mendapatkan profil pengguna
 router.get('/user-profile', verifyJWT, (req, res) => {

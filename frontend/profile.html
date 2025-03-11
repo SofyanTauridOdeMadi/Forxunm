@@ -215,6 +215,7 @@
         </li>
       </ul>
     </div>
+    <div id="errorMessage" class="alert alert-danger d-none"></div>
 
   </div>
 
@@ -317,8 +318,29 @@
   async function uploadProfileImage() {
     const token = localStorage.getItem('token');
     const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    // Periksa apakah file ada dan tipe file adalah gambar
+    if (!file) {
+      alert('Please select an image file to upload.');
+      return;
+    }
+
+    const fileType = file.type.split('/')[0];
+    if (fileType !== 'image') {
+      alert('Please upload a valid image file (e.g., jpg, png).');
+      return;
+    }
+
+    // Periksa apakah ukuran file lebih besar dari 5MB
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('File size exceeds 5MB limit. Please upload a smaller file.');
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('profile_image', fileInput.files[0]);
+    formData.append('profile_image', file);
 
     // Mengirim permintaan upload gambar profil ke server
     const response = await fetch('/api/upload-profile-image', {
