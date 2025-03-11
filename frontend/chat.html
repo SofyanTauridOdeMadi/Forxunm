@@ -55,6 +55,7 @@
     body {
       background-color: #fff3e0;
       color: #f57c00;
+      padding-bottom: 60px;
     }
 
     /* Menata area pesan */
@@ -85,10 +86,6 @@
       color: white;
     }
 
-    /* Memberikan ruang pada area input dan tombol kirim pesan */
-    .d-flex.p-3.bg-warning {
-      padding-bottom: 90px; /* Memberikan ruang untuk memastikan tombol kirim tidak tertutup */
-    }
   </style>
 </head>
 <body class="bg-light">
@@ -115,7 +112,7 @@
       <div id="messages" class="flex-grow-1 p-3 overflow-auto"></div>
 
       <!-- Input untuk menulis pesan -->
-      <div class="d-flex p-3 bg-warning" style="margin-bottom: 80px;">
+      <div class="d-flex p-3 bg-warning">
         <input type="text" id="message" class="form-control me-3" placeholder="Type your message..." />
         <button id="sendBtn" class="btn btn-dark">Send</button>
       </div>
