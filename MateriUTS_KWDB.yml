@@ -1,0 +1,218 @@
+██╗  ██╗███████╗███████╗
+╚██╗██╔╝██╔════╝██╔════╝
+ ╚███╔╝ ███████╗███████╗     Serangan XSS (Cross-Site Scripting)
+ ██╔██╗ ╚════██║╚════██║     Penjelasan Oleh @72_stom
+██╔╝ ██╗███████║███████║
+╚═╝  ╚═╝╚══════╝╚══════╝
+
+Serangan XSS (Cross-Site Scripting)
+XSS (Cross-Site Scripting) adalah jenis serangan yang memungkinkan penyerang untuk menyuntikkan
+skrip berbahaya ke dalam situs web yang dapat dieksekusi oleh pengguna lain.
+Ini terjadi ketika aplikasi web memperbolehkan pengguna untuk memasukkan data yang diproses dan
+disajikan kembali ke pengguna tanpa terlebih dahulu memvalidasi atau menyaring input tersebut.
+
+Jenis serangan XSS:
+	1.	Stored XSS (Persistent): Skrip berbahaya disimpan di server dan kemudian dieksekusi di sisi klien setiap kali halaman dimuat oleh pengguna yang terpengaruh. (Yang dilalukan di laporan)
+	2.	Reflected XSS (Non-Persistent): Skrip berbahaya tidak disimpan di server, tetapi dikirim dalam permintaan HTTP dan langsung diproses oleh aplikasi web, kemudian dieksekusi oleh klien.
+	3.	DOM-based XSS: Skrip berbahaya mengubah struktur DOM di browser dengan memanfaatkan perubahan pada objek JavaScript yang dimuat.
+
+⸻
+
+Cara Kerja Serangan XSS
+
+Diagram alur serangan Reflected XSS yang umum:
+	1.	Pengguna mengunjungi situs web yang rentan terhadap XSS.
+	2.	Penyerang mengirimkan URL yang dimodifikasi, yang berisi skrip berbahaya (misalnya: <script>alert('XSS Attack')</script>).
+	3.	Situs web tidak memvalidasi input pengguna dan memasukkan data (termasuk skrip berbahaya) ke dalam halaman web.
+	4.	Browser pengguna mengeksekusi skrip yang disuntikkan, yang memungkinkan penyerang untuk mengambil data sensitif (misalnya, cookies atau kredensial pengguna).
+	5.	Penyerang mendapatkan data yang dicuri atau melaksanakan aksi lain sesuai tujuannya.
+
+
+Cara Melindungi dari Serangan XSS
+
+Untuk melindungi aplikasi web dari serangan XSS, berikut beberapa langkah yang bisa diambil:
+	1.	Validasi dan Sanitasi Input: (Yang digunakan)
+	•	Pastikan untuk memvalidasi input pengguna dengan ketat (misalnya, hanya izinkan karakter tertentu dalam formulir).
+	•	Gunakan sanitasi input untuk menghapus tag HTML atau JavaScript yang berbahaya.
+	2.	Menggunakan Content Security Policy (CSP):
+	•	Terapkan CSP untuk membatasi sumber daya yang dapat dimuat dan dieksekusi oleh browser. Ini membantu mencegah skrip dari sumber yang tidak sah.
+	3.	Encoding dan Escaping Output: (Yang digunakan)
+	•	Selalu encode output sebelum menampilkannya kembali di halaman web. Ini memastikan bahwa skrip tidak dieksekusi, tetapi hanya ditampilkan sebagai teks.
+	•	Gunakan encoding HTML untuk mencegah elemen HTML dieksekusi sebagai skrip.
+	4.	Menggunakan HTTP-only Cookies:
+	•	Tandai cookies sebagai HTTPOnly, yang mencegah akses ke cookies dari JavaScript. Ini melindungi data sensitif, seperti sesi pengguna, dari pencurian melalui XSS.
+	5.	Menggunakan Framework atau Perpustakaan yang Aman: (Yang digunakan)
+	•	Gunakan framework dan pustaka yang menyediakan perlindungan terhadap XSS, seperti Angular, React, dan lainnya, yang secara otomatis melakukan encoding output.
+	6.	Menonaktifkan Eksekusi JavaScript dalam Input Pengguna: 
+	•	Hindari mengeksekusi JavaScript dalam data input pengguna, terutama di area yang menampilkan pesan atau elemen HTML dinamis.
+
+
+ ██████╗███████╗██████╗ ███████╗
+██╔════╝██╔════╝██╔══██╗██╔════╝
+██║     ███████╗██████╔╝█████╗       Serangan XSS CSRF (Cross-Site Request Forgery)
+██║     ╚════██║██╔══██╗██╔══╝       Penjelasan Oleh @72_stom
+╚██████╗███████║██║  ██║██║     
+ ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝     
+
+CSRF (Cross-Site Request Forgery) adalah jenis serangan di mana penyerang memanfaatkan kepercayaan
+yang dimiliki oleh pengguna terhadap situs web tertentu untuk melakukan aksi yang tidak sah tanpa
+sepengetahuan pengguna. CSRF mengeksploitasi sesi yang telah ada, di mana penyerang mengirimkan permintaan
+palsu ke server atas nama pengguna yang sudah login, biasanya dengan cara menipu pengguna untuk melakukan
+klik atau mengunjungi halaman yang memicu permintaan berbahaya.
+
+Serangan ini dapat menyebabkan berbagai masalah, seperti perubahan data pengguna, pengiriman uang, atau tindakan lain yang dapat merugikan pengguna atau aplikasi.
+
+⸻
+
+Bagaimana Cara Kerja Serangan CSRF?
+
+Berikut adalah langkah-langkah dalam cara kerja serangan CSRF:
+	1.	Pengguna login ke aplikasi: Pengguna login ke aplikasi web dan mendapatkan sesi aktif, misalnya dengan menggunakan cookie sesi.
+	2.	Penyerang membuat halaman berbahaya: Penyerang membuat halaman web atau email yang mengandung permintaan berbahaya yang akan dikirimkan ke aplikasi yang ditargetkan. Misalnya, permintaan untuk mengubah email atau mengirimkan uang.
+	3.	Pengguna mengunjungi halaman berbahaya: Pengguna mengunjungi halaman web atau membuka email yang dikirim oleh penyerang, tanpa menyadari adanya ancaman.
+	4.	Permintaan CSRF dikirim: Karena pengguna sudah login dan memiliki sesi aktif (misalnya, cookie), aplikasi web yang ditargetkan tidak membedakan antara permintaan yang sah dan permintaan yang berasal dari penyerang. Permintaan dari halaman berbahaya ini akan dikirimkan ke server aplikasi web atas nama pengguna.
+	5.	Permintaan dijalankan di server: Server menerima permintaan tersebut, memverifikasi sesi pengguna (karena ada cookie yang valid), dan mengeksekusi perintah yang tidak sah, seperti mengganti pengaturan pengguna, mentransfer uang, atau melakukan tindakan merugikan lainnya.
+
+⸻
+
+Cara Melindungi dari Serangan CSRF
+
+Untuk melindungi aplikasi web Anda dari serangan CSRF, Anda bisa menerapkan beberapa teknik pencegahan berikut:
+	1.	Token CSRF:
+	•	Penggunaan Token Unik: Pastikan setiap permintaan sensitif (seperti POST, PUT, DELETE) menyertakan token CSRF yang unik dan tidak dapat ditebak. Token ini biasanya dikirim bersama dengan permintaan dan divalidasi oleh server.
+	•	Token dalam Formulir: Tambahkan token CSRF pada setiap formulir HTML untuk memastikan bahwa permintaan berasal dari pengguna yang sah.
+	•	Token dalam Header: Jika menggunakan AJAX atau permintaan API, Anda bisa menambahkan token CSRF dalam header permintaan HTTP.
+Contoh implementasi token CSRF di Express.js:
+
+const csrf = require('csurf');
+const csrfProtection = csrf({ cookie: true });
+
+app.get('/form', csrfProtection, (req, res) => {
+    res.render('form', { csrfToken: req.csrfToken() });
+});
+
+app.post('/process', csrfProtection, (req, res) => {
+    res.send('Data diterima');
+});
+
+
+	2.	SameSite Cookies:
+	•	Mengatur atribut SameSite pada cookies menjadi Strict atau Lax akan membatasi pengiriman cookie dari situs yang berbeda. Dengan ini, aplikasi Anda akan lebih aman dari CSRF karena cookie hanya akan dikirim jika permintaan berasal dari situs yang sama.
+Contoh pengaturan SameSite pada cookie:
+
+app.use((req, res, next) => {
+    res.cookie('session', 'some-session-id', { sameSite: 'Strict' });
+    next();
+});
+
+
+	3.	Validasi Referer dan Origin Header:
+	•	Anda bisa memeriksa header Referer atau Origin untuk memastikan bahwa permintaan berasal dari sumber yang sah. Ini akan mencegah permintaan yang berasal dari situs yang tidak tepercaya.
+Contoh validasi header Referer di Node.js (Express):
+
+app.post('/transfer', (req, res, next) => {
+    const referer = req.get('Referer');
+    if (!referer || !referer.includes('https://yourdomain.com')) {
+        return res.status(403).send('Akses ditolak');
+    }
+    next();
+});
+
+
+	4.	Menggunakan Metode HTTP yang Tepat:
+	•	Untuk permintaan yang mengubah status atau data (misalnya, POST, PUT, DELETE), gunakan metode HTTP yang benar. Anda bisa memblokir metode GET untuk tindakan yang mengubah data untuk mengurangi risiko CSRF.
+	5.	Penggunaan CAPTCHA:
+	•	Untuk tindakan yang sangat sensitif, seperti mengubah kata sandi atau mentransfer uang, Anda bisa menggunakan CAPTCHA untuk memastikan bahwa permintaan berasal dari pengguna manusia dan bukan dari otomatisasi penyerang.
+                  
+███████╗██╗██╗     ███████╗    ██╗   ██╗██████╗ ██╗      ██████╗  █████╗ ██████╗                    
+██╔════╝██║██║     ██╔════╝    ██║   ██║██╔══██╗██║     ██╔═══██╗██╔══██╗██╔══██╗                   
+█████╗  ██║██║     █████╗      ██║   ██║██████╔╝██║     ██║   ██║███████║██║  ██║     Serangan File Upload Vulnerability            
+██╔══╝  ██║██║     ██╔══╝      ██║   ██║██╔═══╝ ██║     ██║   ██║██╔══██║██║  ██║     Penjelasan Oleh @72_stom            
+██║     ██║███████╗███████╗    ╚██████╔╝██║     ███████╗╚██████╔╝██║  ██║██████╔╝                   
+╚═╝     ╚═╝╚══════╝╚══════╝     ╚═════╝ ╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝                    
+
+File Upload Vulnerability adalah jenis kerentanannya yang terjadi ketika aplikasi web memungkinkan pengguna
+untuk mengunggah file tanpa melakukan validasi yang memadai terhadap tipe atau konten file tersebut.
+Ini dapat membuka celah bagi penyerang untuk mengunggah file berbahaya, seperti skrip berbahaya (misalnya PHP, JavaScript, atau HTML yang dapat dieksekusi)
+yang bisa dieksekusi di server atau di browser pengguna. Serangan file upload dapat digunakan untuk menjalankan kode berbahaya di server, mengakses data sensitif,
+atau bahkan mengambil alih server atau aplikasi web yang rentan.
+
+⸻
+
+Jenis-Jenis Serangan File Upload
+	1.	Upload Skrip Berbahaya:
+	•	Penyerang mengunggah file skrip (misalnya, PHP, ASP, atau JSP) yang dapat dieksekusi di server.
+	•	Setelah file diunggah, penyerang dapat mengakses file tersebut melalui URL dan menjalankan skrip untuk merusak sistem, mencuri data, atau menjalankan perintah yang tidak sah.
+	2.	Web Shell:
+	•	Penyerang dapat mengunggah web shell, yaitu skrip atau file yang memungkinkan mereka mengakses server dan menjalankan perintah shell di server tersebut. Web shell ini sering digunakan untuk mengambil alih server atau melakukan serangan lebih lanjut.
+	3.	Cross-Site Scripting (XSS) Melalui File:
+	•	File yang diunggah oleh pengguna (seperti gambar atau dokumen) dapat disusupi dengan skrip berbahaya yang dieksekusi saat file dilihat oleh pengguna lain. Misalnya, file gambar yang berisi skrip JavaScript yang berbahaya.
+	4.	Upload File dengan Ekstensi Berbahaya:
+	•	Penyerang mengunggah file dengan ekstensi yang terlihat sah (misalnya .jpg, .png), namun isinya adalah file skrip atau executable yang dapat dipicu oleh aplikasi yang tidak memvalidasi file tersebut.
+
+⸻
+
+Cara Kerja Serangan File Upload
+	1.	Pengguna Mengunggah File:
+	•	Pengguna yang tidak sah mencoba mengunggah file melalui formulir unggah file di aplikasi web. Aplikasi mungkin tidak memvalidasi jenis atau ekstensi file dengan benar.
+	2.	File Diterima oleh Server:
+	•	Jika server tidak memeriksa atau memvalidasi file dengan benar, file yang berisi skrip berbahaya bisa diterima dan disimpan di server.
+	3.	Eksekusi Kode Berbahaya:
+	•	Penyerang kemudian mencoba untuk mengakses file tersebut melalui URL atau jalur yang diketahui (misalnya, www.example.com/uploads/evilfile.php).
+	•	Jika file tersebut berupa skrip berbahaya yang dapat dieksekusi, penyerang bisa menjalankan kode berbahaya di server.
+	4.	Kontrol Server Diterima oleh Penyerang:
+	•	Dengan file skrip berbahaya (seperti web shell), penyerang bisa mendapatkan kontrol penuh atas server, mengambil data sensitif, atau merusak sistem.
+
+⸻
+
+Contoh Serangan File Upload
+Misalnya, sebuah aplikasi web memungkinkan pengguna untuk mengunggah file gambar. Namun, aplikasi tidak memvalidasi jenis file dengan benar, dan penyerang mengunggah file PHP berbahaya dengan ekstensi .jpg atau .png. Jika server tidak memeriksa jenis file dengan benar, file tersebut akan diproses dan disimpan di direktori unggahan.
+Kemudian, penyerang dapat mengakses file tersebut melalui URL seperti: http://www.example.com/uploads/evilfile.jpg Jika server memungkinkan eksekusi file PHP, skrip PHP tersebut dapat dieksekusi dan penyerang dapat menjalankan perintah berbahaya, mengakses data sensitif, atau bahkan mendapatkan akses penuh ke server.
+
+⸻
+
+Cara Melindungi dari Serangan File Upload Vulnerability
+	1.	Validasi Tipe File dengan Cermat:
+	•	Pemeriksaan Ekstensi: Pastikan hanya file dengan ekstensi yang sah dan diizinkan yang dapat diunggah, seperti .jpg, .png, atau .pdf.
+	•	Pemeriksaan MIME Type: Selain pemeriksaan ekstensi, periksa MIME type file untuk memastikan bahwa file yang diunggah adalah tipe file yang sah. Misalnya, untuk gambar, pastikan file memiliki MIME type image/jpeg atau image/png.
+	•	Validasi Konten File: Pastikan konten file sesuai dengan jenisnya (misalnya, file gambar benar-benar gambar, file PDF benar-benar berformat PDF) dengan menggunakan pustaka validasi file seperti ImageMagick (untuk gambar) atau PDF.js (untuk PDF).
+	2.	Hindari Mengeksekusi File yang Diupload:
+	•	Jangan biarkan file yang diunggah dieksekusi di server. Simpan file unggahan di folder yang tidak dapat dieksekusi (misalnya, di luar webroot).
+	•	Gunakan Randomized Filenames: Hindari menggunakan nama asli file yang diunggah untuk mencegah penyerang mengetahui file yang mereka unggah.
+Contoh di Node.js (Express):
+
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Folder yang aman
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname); // Nama file yang acak
+  }
+});
+
+const upload = multer({ storage: storage }).single('file');
+
+app.post('/upload', upload, function (req, res) {
+  res.send('File diunggah dengan aman!');
+});
+
+
+	3.	Batasi Ukuran File:
+	•	Batasi ukuran file yang diunggah untuk mencegah file besar yang tidak diinginkan diunggah, yang dapat membebani server atau digunakan untuk menutupi file berbahaya.
+	4.	Gunakan File Upload Filter atau Antivirus:
+	•	Gunakan perangkat lunak keamanan atau antivirus untuk memeriksa file unggahan dan mendeteksi file berbahaya sebelum diproses atau disimpan di server.
+	5.	Terapkan Autentikasi dan Otorisasi yang Kuat:
+	•	Pastikan hanya pengguna yang sah yang dapat mengunggah file. Implementasikan autentikasi dan otorisasi yang kuat untuk memastikan hanya pengguna yang berwenang yang dapat mengunggah file.
+	6.	Gunakan Sandbox untuk Menyimpan File Unggahan:
+	•	Jika memungkinkan, pertimbangkan untuk menyimpan file unggahan di sandbox atau lingkungan yang terisolasi, di mana file-file tersebut tidak dapat mengakses bagian lain dari server atau aplikasi Anda.
+	7.	Jaga Server dan Aplikasi Web Terbaru:
+	•	Selalu perbarui server dan aplikasi Anda untuk menutup celah keamanan yang dapat dimanfaatkan oleh penyerang.
+                                                                                           
+██╗   ██╗████████╗███████╗                                              
+██║   ██║╚══██╔══╝██╔════╝                                           
+██║   ██║   ██║   ███████╗    Mudah-mudahan dipermudahkan UTS nya !                                                          
+██║   ██║   ██║   ╚════██║    Aamiin !!!                                 
+╚██████╔╝   ██║   ███████║                                              
+ ╚═════╝    ╚═╝   ╚══════╝                                                 
+                                                                                                         

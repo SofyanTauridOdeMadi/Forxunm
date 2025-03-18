@@ -7,9 +7,9 @@ const db = mysql.createConnection({
     database: 'secure_web'
 });
 
+console.time('DB Connection');
 db.connect((err) => {
+    console.timeEnd('DB Connection');
     if (err) throw err;
     console.log('Koneksi Database Berhasil');
 });
-
-module.exports = db;
