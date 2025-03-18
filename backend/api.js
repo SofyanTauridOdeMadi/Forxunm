@@ -184,26 +184,47 @@ router.get('/user-profile', verifyJWT, (req, res) => {
 });
 
 // Memperbarui profil pengguna
-router.post('/update-profile', verifyJWT, (req, res) => {
-  const userId = req.user.id;
-  const { email, bio, newPassword } = req.body;
+router.post('/update-profile', express.json(), async (req, res) => {
+  const { email, bio, newPassword, csrfToken } = req.body;
+  const token = req.headers['authorization']?.split(' ')[1]; // Ambil token dari header
 
-  let query = 'UPDATE users SET bio = ?, email = ? WHERE id = ?';
-  const params = [bio, email, userId];
-
-  if (newPassword) {
-    const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
-    query = 'UPDATE users SET bio = ?, email = ?, password = ? WHERE id = ?';
-    params.push(hashedPassword);
+  if (!token) {
+      return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  db.query(query, params, (err, result) => {
-    if (err) {
-      console.error('Error updating profile:', err.message);
-      return res.status(500).json({ error: 'Failed to update profile' });
-    }
-    res.json({ status: true });
-  });
+  try {
+      // Verifikasi token JWT dan ambil informasi pengguna
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const userId = decoded.id;
+
+      // Jika ada kata sandi baru, kita perlu memverifikasi dan mengubah kata sandi
+      let hashedPassword = null;
+      if (newPassword) {
+          if (newPassword.length < 6) {
+              return res.status(400).json({ error: 'Password should be at least 6 characters' });
+          }
+
+          // Hash password baru
+          hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
+      }
+
+      // Update data pengguna di database
+      const query = 'UPDATE users SET email = ?, bio = ?, password = ? WHERE id = ?';
+      db.query(query, [email, bio, hashedPassword || null, userId], (err, result) => {
+          if (err) {
+              return res.status(500).json({ error: err.message });
+          }
+
+          if (result.affectedRows === 0) {
+              return res.status(404).json({ error: 'User not found' });
+          }
+
+          res.status(200).json({ message: 'Profile updated successfully' });
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to update profile' });
+  }
 });
 
 // Endpoint untuk upload gambar profil
