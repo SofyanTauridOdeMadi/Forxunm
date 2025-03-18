@@ -264,40 +264,41 @@
       const token = localStorage.getItem('token');
       const email = document.getElementById('email').value;
       const bio = document.getElementById('bio').value;
-      const newPassword = document.getElementById('newPassword').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
+      const newPassword = document.getElementById('newPassword').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
       const csrfToken = document.getElementById('csrfToken').value; // Ambil CSRF Token
 
-    // Validasi bahwa password baru dan konfirmasi password harus sama
-    if (newPassword && newPassword !== confirmPassword) {
-      alert('Passwords do not match!');
-      return;
+      // Validasi bahwa password baru dan konfirmasi password harus sama
+      if (newPassword && newPassword !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+      }
+
+      // Kirim data hanya jika ada perubahan pada password
+      const body = {
+        email,
+        bio,
+        newPassword: newPassword || null, // Hanya kirim password baru jika ada
+        confirmPassword: confirmPassword || null, // Hanya kirim confirmPassword jika ada
+        csrfToken, // Kirim CSRF Token untuk validasi
+      };
+
+      const response = await fetch('/api/update-profile', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const result = await response.json();
+      if (result.status) {
+        alert('Profile updated successfully');
+      } else {
+        alert(result.error || 'Failed to update profile');
+      }
     }
-
-    const body = {
-      email,
-      bio,
-      newPassword: newPassword || null, // Hanya kirim password baru jika ada
-      confirmPassword: confirmPassword || null,
-      csrfToken, // Kirim CSRF Token untuk validasi
-    };
-
-    const response = await fetch('/api/update-profile', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    const result = await response.json();
-    if (result.status) {
-      alert('Profile updated successfully');
-    } else {
-      alert(result.error || 'Failed to update profile');
-    }
-  }
 
   async function uploadProfileImage() {
     const token = localStorage.getItem('token');

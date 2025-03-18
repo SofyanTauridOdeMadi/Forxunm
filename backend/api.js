@@ -198,47 +198,35 @@ router.post('/update-profile', express.json(), async (req, res) => {
       const decoded = jwt.verify(token, JWT_SECRET);
       const userId = decoded.id;
 
-      // Log untuk melihat data yang diterima
-      console.log('Received Data:', { email, bio, newPassword, confirmPassword });
-
-      // Trim whitespace dari password baru dan konfirmasi password
-      const trimmedNewPassword = newPassword?.trim();
-      const trimmedConfirmPassword = confirmPassword?.trim();
-
-      // Pastikan password baru dan konfirmasi password cocok
-      if (trimmedNewPassword && trimmedNewPassword !== trimmedConfirmPassword) {
-          return res.status(400).json({ error: 'Passwords do not match' });
-      }
-
-      // Jika ada kata sandi baru, kita perlu memverifikasi dan mengubah kata sandi
+      // Jika newPassword atau confirmPassword tidak ada, skip update password
       let hashedPassword = null;
-      if (trimmedNewPassword) {
-          if (trimmedNewPassword.length < 6) {
-              return res.status(400).json({ error: 'Password should be at least 6 characters' });
+      if (newPassword && confirmPassword) {
+          // Jika password baru dan konfirmasi cocok
+          if (newPassword === confirmPassword) {
+              // Hash password baru
+              hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
+          } else {
+              return res.status(400).json({ error: 'Passwords do not match' });
           }
-
-          // Hash password baru
-          hashedPassword = crypto.createHash('sha256').update(trimmedNewPassword).digest('hex');
       }
 
-      // Log untuk memastikan hashedPassword ada jika diubah
-      console.log('Hashed Password:', hashedPassword);
-
-      // Update data pengguna di database
-      const query = 'UPDATE users SET email = ?, bio = ?, password = ? WHERE id = ?';
+      // Update data pengguna di database, perbarui password hanya jika ada
+      const query = 'UPDATE users SET email = ?, bio = ?, password = COALESCE(?, password) WHERE id = ?';
       db.query(query, [email, bio, hashedPassword || null, userId], (err, result) => {
           if (err) {
               console.error('Database Error:', err.message);
-              return res.status(500).json({ error: err.message });
+              return res.status(500).json({ error: 'Failed to update profile' });
           }
 
-          // Log hasil query
+          // Log hasil query untuk debugging
           console.log('Query Result:', result);
 
+          // Jika tidak ada baris yang terpengaruh, maka data tidak diperbarui
           if (result.affectedRows === 0) {
               return res.status(404).json({ error: 'User not found' });
           }
 
+          // Jika ada perubahan, kirimkan respon sukses
           res.status(200).json({ message: 'Profile updated successfully' });
       });
   } catch (error) {
