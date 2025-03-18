@@ -3,10 +3,10 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const db = require('./db');
 const router = express.Router();
-
-const JWT_SECRET = 'e5a02f9d2488cb7d09e019f15eeb9e4f14b9a0543b8cc5e9cdcc88b6e4e243c90e1b1e0a0f37922dfabbf365ab407623'; // Ganti dengan kunci rahasia Anda
 const multer = require('multer');
 const path = require('path');
+
+const JWT_SECRET = 'e5a02f9d2488cb7d09e019f15eeb9e4f14b9a0543b8cc5e9cdcc88b6e4e243c90e1b1e0a0f37922dfabbf365ab407623'; // Ganti dengan kunci rahasia Anda
 
 // **GET**: Mendapatkan semua thread
 router.get('/threads', (req, res) => {
@@ -184,8 +184,9 @@ router.get('/user-profile', verifyJWT, (req, res) => {
 });
 
 // Memperbarui profil pengguna
+// **POST**: Update profil pengguna (termasuk kata sandi)
 router.post('/update-profile', express.json(), async (req, res) => {
-  const { email, bio, newPassword, csrfToken } = req.body;
+  const { email, bio, newPassword, confirmPassword, csrfToken } = req.body;
   const token = req.headers['authorization']?.split(' ')[1]; // Ambil token dari header
 
   if (!token) {
@@ -197,23 +198,42 @@ router.post('/update-profile', express.json(), async (req, res) => {
       const decoded = jwt.verify(token, JWT_SECRET);
       const userId = decoded.id;
 
+      // Log untuk melihat data yang diterima
+      console.log('Received Data:', { email, bio, newPassword, confirmPassword });
+
+      // Trim whitespace dari password baru dan konfirmasi password
+      const trimmedNewPassword = newPassword?.trim();
+      const trimmedConfirmPassword = confirmPassword?.trim();
+
+      // Pastikan password baru dan konfirmasi password cocok
+      if (trimmedNewPassword && trimmedNewPassword !== trimmedConfirmPassword) {
+          return res.status(400).json({ error: 'Passwords do not match' });
+      }
+
       // Jika ada kata sandi baru, kita perlu memverifikasi dan mengubah kata sandi
       let hashedPassword = null;
-      if (newPassword) {
-          if (newPassword.length < 6) {
+      if (trimmedNewPassword) {
+          if (trimmedNewPassword.length < 6) {
               return res.status(400).json({ error: 'Password should be at least 6 characters' });
           }
 
           // Hash password baru
-          hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
+          hashedPassword = crypto.createHash('sha256').update(trimmedNewPassword).digest('hex');
       }
+
+      // Log untuk memastikan hashedPassword ada jika diubah
+      console.log('Hashed Password:', hashedPassword);
 
       // Update data pengguna di database
       const query = 'UPDATE users SET email = ?, bio = ?, password = ? WHERE id = ?';
       db.query(query, [email, bio, hashedPassword || null, userId], (err, result) => {
           if (err) {
+              console.error('Database Error:', err.message);
               return res.status(500).json({ error: err.message });
           }
+
+          // Log hasil query
+          console.log('Query Result:', result);
 
           if (result.affectedRows === 0) {
               return res.status(404).json({ error: 'User not found' });
@@ -222,7 +242,7 @@ router.post('/update-profile', express.json(), async (req, res) => {
           res.status(200).json({ message: 'Profile updated successfully' });
       });
   } catch (error) {
-      console.error(error);
+      console.error('Error in update profile:', error);
       res.status(500).json({ error: 'Failed to update profile' });
   }
 });

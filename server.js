@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const apiRoutes = require('./backend/api');
-const db = require('./backend/db');
 
 const app = express();
 
@@ -37,18 +36,8 @@ app.get('/chat.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'chat.html'));
 });
 
-// Fungsi untuk memulai server setelah memastikan database terkoneksi
-const startServer = async () => {
-    try {
-        await db.connect();  // Pastikan koneksi DB berhasil terlebih dahulu
-        const PORT = 3000;
-        app.listen(PORT, () => {
-            console.log(`Server berjalan di http://localhost:${PORT}`);
-        });
-    } catch (err) {
-        console.error('Gagal terhubung ke database:', err);
-    }
-};
-
 // Jalankan server
-startServer();
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
+});
