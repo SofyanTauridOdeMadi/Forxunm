@@ -1,49 +1,86 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const helmet = require('helmet'); // Added for security headers
+const helmet = require('helmet');
+const https = require('https');
+const fs = require('fs');
 const apiRoutes = require('./backend/api');
 
 const app = express();
 
-// Use helmet for security best practices
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "https://code.jquery.com",
+        "'unsafe-inline'",
+        "'unsafe-eval'"
+      ],
+      styleSrc: [
+        "'self'",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "'unsafe-inline'"
+      ],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https://*"
+      ],
+      connectSrc: ["'self'"],
+      fontSrc: [
+        "'self'",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com"
+      ],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+}));
 
-// Middleware untuk JSON parsing
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Menyajikan file statik dari root direktori
-app.use(express.static(path.join(__dirname, 'assets')));  // Folder untuk gambar
-app.use(express.static(path.join(__dirname, 'uploads'))); // Folder untuk Uploads
+app.use(express.static(path.join(__dirname, 'assets')));
+app.use(express.static(path.join(__dirname, 'uploads')));
 
-// Endpoint untuk API
 app.use('/api', apiRoutes);
 
-// Menampilkan halaman utama
+// Redirect root to /home.html
+app.get('/', (req, res) => {
+    res.redirect('/auth.html');
+});
+
 app.get('/home.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend','home.html'));
+    res.sendFile(path.join(__dirname, 'frontend', 'home.html'));
 });
 
-// Menampilkan halaman utama
 app.get('/profile.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend','profile.html'));
+    res.sendFile(path.join(__dirname, 'frontend', 'profile.html'));
 });
 
-// Menangani permintaan ke auth.html
 app.get('/auth.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'auth.html'));
 });
 
-// Menangani permintaan ke chat.html
 app.get('/chat.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'chat.html'));
 });
 
-// Jalankan server
 const PORT = process.env.PORT || 3000;
+const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-app.listen(PORT, () => {
-    console.log(`Server berjalan di http://localhost:${PORT} - Mode: ${NODE_ENV}`);
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem')),
+};
+
+https.createServer(sslOptions, app).listen(HTTPS_PORT, () => {
+  console.log(`HTTPS Server berjalan di https://localhost:${HTTPS_PORT} - Mode: ${NODE_ENV}`);
 });

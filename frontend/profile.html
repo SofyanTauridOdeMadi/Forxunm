@@ -167,9 +167,9 @@
         </div>
 
         <div class="text-center">
-            <button class="btn btn-update btn-lg" type="button" onclick="updateProfile()">Update Profile</button>
-            <button class="btn btn-update btn-lg" type="button" onclick="uploadProfileImage()">Upload Profile Picture</button>
-            <button class="btn btn-logout btn-lg" type="button" onclick="logout()">Logout</button>
+            <button id="btnUpdateProfile" class="btn btn-update btn-lg" type="button">Update Profile</button>
+            <button id="btnUploadProfileImage" class="btn btn-update btn-lg" type="button">Upload Profile Picture</button>
+            <button id="btnLogout" class="btn btn-logout btn-lg" type="button">Logout</button>
         </div>
       </div>
 
@@ -187,7 +187,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="#" onclick="toggleProfileEdit()">
+          <a id="profileLink" class="nav-link active" href="#">
             <i class="bi bi-person"></i> <!-- Profile Icon -->
           </a>
         </li>
@@ -205,6 +205,15 @@
         window.location.href = 'auth.html'; // Mengarahkan ke halaman login jika token tidak ada
         return;
     }
+
+    // Attach event listeners to buttons and links
+    document.getElementById('btnUpdateProfile').addEventListener('click', updateProfile);
+    document.getElementById('btnUploadProfileImage').addEventListener('click', uploadProfileImage);
+    document.getElementById('btnLogout').addEventListener('click', logout);
+    document.getElementById('profileLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleProfileEdit();
+    });
 
     // Ambil elemen-elemen yang akan diubah
     const usernameElement = document.getElementById('username');
