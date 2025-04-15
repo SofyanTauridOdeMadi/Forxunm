@@ -6,6 +6,30 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 
+// Helper functions for validation and sanitization
+function isValidNumber(value) {
+  return !isNaN(value) && Number.isInteger(Number(value)) && Number(value) > 0;
+}
+
+function sanitizeString(str) {
+  if (typeof str !== 'string') return '';
+  return str.trim();
+}
+
+function isValidEmail(email) {
+  const emailRegex = /^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$/;
+  return emailRegex.test(email);
+}
+
+function isValidUsername(username) {
+  const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+  return usernameRegex.test(username);
+}
+
+function isValidPassword(password) {
+  return typeof password === 'string' && password.length >= 6;
+}
+
 const JWT_SECRET = 'e5a02f9d2488cb7d09e019f15eeb9e4f14b9a0543b8cc5e9cdcc88b6e4e243c90e1b1e0a0f37922dfabbf365ab407623'; // Ganti dengan kunci rahasia Anda
 
 // **GET**: Mendapatkan semua thread
