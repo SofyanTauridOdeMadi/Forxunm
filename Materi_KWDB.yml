@@ -49,7 +49,7 @@ Untuk melindungi aplikasi web dari serangan XSS, berikut beberapa langkah yang b
 
  ██████╗███████╗██████╗ ███████╗
 ██╔════╝██╔════╝██╔══██╗██╔════╝
-██║     ███████╗██████╔╝█████╗       Serangan XSS CSRF (Cross-Site Request Forgery)
+██║     ███████╗██████╔╝█████╗       Serangan CSRF (Cross-Site Request Forgery)
 ██║     ╚════██║██╔══██╗██╔══╝       Penjelasan Oleh @72_stom
 ╚██████╗███████║██║  ██║██║     
  ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝     
@@ -208,11 +208,3 @@ app.post('/upload', upload, function (req, res) {
 	•	Jika memungkinkan, pertimbangkan untuk menyimpan file unggahan di sandbox atau lingkungan yang terisolasi, di mana file-file tersebut tidak dapat mengakses bagian lain dari server atau aplikasi Anda.
 	7.	Jaga Server dan Aplikasi Web Terbaru:
 	•	Selalu perbarui server dan aplikasi Anda untuk menutup celah keamanan yang dapat dimanfaatkan oleh penyerang.
-                                                                                           
-██╗   ██╗████████╗███████╗                                              
-██║   ██║╚══██╔══╝██╔════╝                                           
-██║   ██║   ██║   ███████╗    Mudah-mudahan dipermudahkan UTS nya !                                                          
-██║   ██║   ██║   ╚════██║    Aamiin !!!                                 
-╚██████╔╝   ██║   ███████║                                              
- ╚═════╝    ╚═╝   ╚══════╝                                                 
-                                                                                                         

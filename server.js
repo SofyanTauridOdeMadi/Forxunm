@@ -1,9 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const helmet = require('helmet'); // Added for security headers
 const apiRoutes = require('./backend/api');
 
 const app = express();
+
+// Use helmet for security best practices
+app.use(helmet());
 
 // Middleware untuk JSON parsing
 app.use(bodyParser.json());
@@ -37,7 +41,9 @@ app.get('/chat.html', (req, res) => {
 });
 
 // Jalankan server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
 app.listen(PORT, () => {
-    console.log(`Server berjalan di http://localhost:${PORT}`);
+    console.log(`Server berjalan di http://localhost:${PORT} - Mode: ${NODE_ENV}`);
 });

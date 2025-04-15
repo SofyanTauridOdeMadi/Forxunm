@@ -152,13 +152,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="newPassword" class="form-label">New Password</label>
-            <input type="password" class="form-control" id="newPassword" placeholder="Leave blank to keep current password">
-        </div>
-
-        <div class="mb-3">
-            <label for="confirmPassword" class="form-label">Confirm New Password</label>
-            <input type="password" class="form-control" id="confirmPassword">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="confirmPassword" placeholder="Enter your current password to confirm changes">
         </div>
 
         <!-- CSRF Token Field -->
@@ -264,22 +259,18 @@
       const token = localStorage.getItem('token');
       const email = document.getElementById('email').value;
       const bio = document.getElementById('bio').value;
-      const newPassword = document.getElementById('newPassword').value.trim();
       const confirmPassword = document.getElementById('confirmPassword').value.trim();
       const csrfToken = document.getElementById('csrfToken').value; // Ambil CSRF Token
 
-      // Validasi bahwa password baru dan konfirmasi password harus sama
-      if (newPassword && newPassword !== confirmPassword) {
-        alert('Passwords do not match!');
+      if (!confirmPassword) {
+        alert('Please enter your current password to confirm changes.');
         return;
       }
 
-      // Kirim data hanya jika ada perubahan pada password
       const body = {
         email,
         bio,
-        newPassword: newPassword || null, // Hanya kirim password baru jika ada
-        confirmPassword: confirmPassword || null, // Hanya kirim confirmPassword jika ada
+        confirmPassword, // Current password for verification
         csrfToken, // Kirim CSRF Token untuk validasi
       };
 

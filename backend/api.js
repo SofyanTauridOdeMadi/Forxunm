@@ -30,7 +30,26 @@ function isValidPassword(password) {
   return typeof password === 'string' && password.length >= 6;
 }
 
-const JWT_SECRET = 'e5a02f9d2488cb7d09e019f15eeb9e4f14b9a0543b8cc5e9cdcc88b6e4e243c90e1b1e0a0f37922dfabbf365ab407623'; // Ganti dengan kunci rahasia Anda
+const JWT_SECRET = process.env.JWT_SECRET || 'e5a02f9d2488cb7d09e019f15eeb9e4f14b9a0543b8cc5e9cdcc88b6e4e243c90e1b1e0a0f37922dfabbf365ab407623'; // Use env variable for secret
+
+// Middleware to verify JWT and limit access
+function verifyJWT(req, res, next) {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) {
+    return res.status(403).json({ error: 'No token provided' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(403).json({ error: 'Token has expired. Please log in again.' });
+      }
+      return res.status(403).json({ error: 'Failed to authenticate token' });
+    }
+    req.user = decoded;
+    next();
+  });
+}
 
 // **GET**: Mendapatkan semua thread
 router.get('/threads', (req, res) => {
@@ -39,14 +58,27 @@ router.get('/threads', (req, res) => {
       if (err) {
           res.status(500).json({ error: err.message });
       } else {
-          res.json(results); // Mengirimkan data thread dalam format JSON
+          res.json(results);
       }
   });
 });
 
-// **POST**: Membuat thread baru
-router.post('/threads', express.json(), (req, res) => {
-  const { user_id, title, content } = req.body;
+// **POST**: Membuat thread baru (dilindungi dengan verifyJWT)
+router.post('/threads', express.json(), verifyJWT, (req, res) => {
+  let { user_id, title, content } = req.body;
+
+  if (!isValidNumber(user_id) || user_id !== req.user.id) {
+    return res.status(403).json({ error: 'Unauthorized user_id' });
+  }
+  user_id = Number(user_id);
+
+  title = sanitizeString(title);
+  content = sanitizeString(content);
+
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Title and content are required' });
+  }
+
   const query = 'INSERT INTO threads (user_id, title, content) VALUES (?, ?, ?)';
   db.query(query, [user_id, title, content], (err, result) => {
       if (err) {
@@ -58,8 +90,14 @@ router.post('/threads', express.json(), (req, res) => {
 });
 
 // **POST**: Memberikan upvote pada thread
-router.post('/threads/:id/upvote', (req, res) => {
-  const threadId = req.params.id;
+router.post('/threads/:id/upvote', verifyJWT, (req, res) => {
+  let threadId = req.params.id;
+
+  if (!isValidNumber(threadId)) {
+    return res.status(400).json({ error: 'Invalid thread ID' });
+  }
+  threadId = Number(threadId);
+
   const query = 'UPDATE threads SET upvotes = upvotes + 1 WHERE thread_id = ?';
   db.query(query, [threadId], (err, result) => {
       if (err) {
@@ -72,7 +110,13 @@ router.post('/threads/:id/upvote', (req, res) => {
 
 // **GET**: Mendapatkan semua balasan untuk thread tertentu
 router.get('/threads/:id/replies', (req, res) => {
-  const threadId = req.params.id;
+  let threadId = req.params.id;
+
+  if (!isValidNumber(threadId)) {
+    return res.status(400).json({ error: 'Invalid thread ID' });
+  }
+  threadId = Number(threadId);
+
   const query = 'SELECT * FROM replies WHERE thread_id = ? AND is_deleted = 0';
   db.query(query, [threadId], (err, results) => {
       if (err) {
@@ -83,10 +127,26 @@ router.get('/threads/:id/replies', (req, res) => {
   });
 });
 
-// **POST**: Membalas thread
-router.post('/threads/:id/reply', express.json(), (req, res) => {
-  const threadId = req.params.id;
-  const { user_id, content } = req.body;
+// **POST**: Membalas thread (dilindungi dengan verifyJWT)
+router.post('/threads/:id/reply', express.json(), verifyJWT, (req, res) => {
+  let threadId = req.params.id;
+  let { user_id, content } = req.body;
+
+  if (!isValidNumber(threadId)) {
+    return res.status(400).json({ error: 'Invalid thread ID' });
+  }
+  threadId = Number(threadId);
+
+  if (!isValidNumber(user_id) || user_id !== req.user.id) {
+    return res.status(403).json({ error: 'Unauthorized user_id' });
+  }
+  user_id = Number(user_id);
+
+  content = sanitizeString(content);
+  if (!content) {
+    return res.status(400).json({ error: 'Content is required' });
+  }
+
   const query = 'INSERT INTO replies (thread_id, user_id, content) VALUES (?, ?, ?)';
   db.query(query, [threadId, user_id, content], (err, result) => {
       if (err) {
@@ -97,16 +157,36 @@ router.post('/threads/:id/reply', express.json(), (req, res) => {
   });
 });
 
-// **DELETE**: Menghapus thread (soft delete)
-router.delete('/threads/:id', (req, res) => {
-  const threadId = req.params.id;
-  const query = 'UPDATE threads SET is_deleted = 1 WHERE thread_id = ?';
-  db.query(query, [threadId], (err, result) => {
-      if (err) {
-          res.status(500).json({ error: err.message });
-      } else {
-          res.status(200).json({ message: 'Thread deleted successfully!' });
+// **DELETE**: Menghapus thread (soft delete, dilindungi dengan verifyJWT)
+router.delete('/threads/:id', verifyJWT, (req, res) => {
+  let threadId = req.params.id;
+  const userId = req.user.id;
+
+  if (!isValidNumber(threadId)) {
+    return res.status(400).json({ error: 'Invalid thread ID' });
+  }
+  threadId = Number(threadId);
+
+  // Check if the thread belongs to the user before deleting
+  const checkQuery = 'SELECT user_id FROM threads WHERE thread_id = ? AND is_deleted = 0';
+  db.query(checkQuery, [threadId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Thread not found' });
+    }
+    if (results[0].user_id !== userId) {
+      return res.status(403).json({ error: 'Unauthorized to delete this thread' });
+    }
+
+    const deleteQuery = 'UPDATE threads SET is_deleted = 1 WHERE thread_id = ?';
+    db.query(deleteQuery, [threadId], (err2, result) => {
+      if (err2) {
+        return res.status(500).json({ error: err2.message });
       }
+      res.status(200).json({ message: 'Thread deleted successfully!' });
+    });
   });
 });
 
@@ -140,7 +220,6 @@ const upload = multer({
 
 // Endpoint untuk upload gambar profil
 router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), (req, res) => {
-  // Jika file tidak ada atau ukuran file terlalu besar
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded or invalid file format' });
   }
@@ -164,33 +243,16 @@ router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), 
 });
 
 // Middleware untuk memverifikasi JWT
-function verifyJWT(req, res, next) {
-  const token = req.headers['authorization']?.split(' ')[1];
-  console.log('Received Token:', token); // Log token yang diterima server
-
-  if (!token) {
-    console.error('No token provided.');
-    return res.status(403).json({ error: 'No token provided' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) {
-      console.error('Token verification failed:', err.message); // Log error verifikasi token
-      if (err.name === 'TokenExpiredError') {
-        return res.status(403).json({ error: 'Token has expired. Please log in again.' });
-      }
-      return res.status(403).json({ error: 'Failed to authenticate token' });
-    }
-
-    console.log('Token verified:', decoded); // Log hasil verifikasi token
-    req.user = decoded; // Token valid, simpan data user
-    next();
-  });
-}
+// (Already defined above as verifyJWT)
 
 // Mendapatkan profil pengguna
 router.get('/user-profile', verifyJWT, (req, res) => {
   const userId = req.user.id;
+
+  if (!isValidNumber(userId)) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
+
   const query = 'SELECT username, email, bio, profile_picture_url, created_at FROM users WHERE id = ?';
 
   db.query(query, [userId], (err, results) => {
@@ -208,50 +270,75 @@ router.get('/user-profile', verifyJWT, (req, res) => {
 });
 
 // Memperbarui profil pengguna
-// **POST**: Update profil pengguna (termasuk kata sandi)
-router.post('/update-profile', express.json(), async (req, res) => {
-  const { email, bio, newPassword, confirmPassword, csrfToken } = req.body;
-  const token = req.headers['authorization']?.split(' ')[1]; // Ambil token dari header
+// **POST**: Update profil pengguna (verifikasi password lama, dilindungi dengan verifyJWT)
+router.post('/update-profile', express.json(), verifyJWT, async (req, res) => {
+  let { email, bio, confirmPassword, csrfToken } = req.body;
+  const userId = req.user.id;
 
-  if (!token) {
-      return res.status(401).json({ error: 'Unauthorized' });
+  // Validate email and bio
+  email = sanitizeString(email);
+  bio = sanitizeString(bio);
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+  if (bio.length > 500) {
+    return res.status(400).json({ error: 'Bio is too long' });
+  }
+
+  if (!confirmPassword) {
+    return res.status(400).json({ error: 'Current password is required for confirmation' });
   }
 
   try {
-      // Verifikasi token JWT dan ambil informasi pengguna
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const userId = decoded.id;
-
-      // Jika newPassword atau confirmPassword tidak ada, skip update password
-      let hashedPassword = null;
-      if (newPassword && confirmPassword) {
-          // Jika password baru dan konfirmasi cocok
-          if (newPassword === confirmPassword) {
-              // Hash password baru
-              hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
-          } else {
-              return res.status(400).json({ error: 'Passwords do not match' });
+      // Ambil password hash dari database untuk verifikasi
+      const queryGetPassword = 'SELECT password FROM users WHERE id = ?';
+      db.query(queryGetPassword, [userId], (err, results) => {
+        if (err) {
+          console.error('Database Error:', err.message);
+          if (!res.headersSent) {
+            return res.status(500).json({ error: 'Failed to verify password' });
           }
-      }
+          return;
+        }
+        if (results.length === 0) {
+          if (!res.headersSent) {
+            return res.status(404).json({ error: 'User not found' });
+          }
+          return;
+        }
 
-      // Update data pengguna di database, perbarui password hanya jika ada
-      const query = 'UPDATE users SET email = ?, bio = ?, password = COALESCE(?, password) WHERE id = ?';
-      db.query(query, [email, bio, hashedPassword || null, userId], (err, result) => {
-          if (err) {
-              console.error('Database Error:', err.message);
+        const storedHashedPassword = results[0].password;
+        const inputHashedPassword = crypto.createHash('sha256').update(confirmPassword).digest('hex');
+
+        if (storedHashedPassword !== inputHashedPassword) {
+          if (!res.headersSent) {
+            return res.status(400).json({ error: 'Incorrect current password' });
+          }
+          return;
+        }
+
+        // Jika password cocok, update email dan bio saja
+        const queryUpdate = 'UPDATE users SET email = ?, bio = ? WHERE id = ?';
+        db.query(queryUpdate, [email, bio, userId], (err2, result) => {
+          if (err2) {
+            console.error('Database Error:', err2.message);
+            if (!res.headersSent) {
               return res.status(500).json({ error: 'Failed to update profile' });
+            }
+            return;
           }
 
-          // Log hasil query untuk debugging
-          console.log('Query Result:', result);
-
-          // Jika tidak ada baris yang terpengaruh, maka data tidak diperbarui
           if (result.affectedRows === 0) {
+            if (!res.headersSent) {
               return res.status(404).json({ error: 'User not found' });
+            }
+            return;
           }
 
-          // Jika ada perubahan, kirimkan respon sukses
-          res.status(200).json({ message: 'Profile updated successfully' });
+          if (!res.headersSent) {
+            res.status(200).json({ status: true, message: 'Profile updated successfully' });
+          }
+        });
       });
   } catch (error) {
       console.error('Error in update profile:', error);
@@ -259,35 +346,16 @@ router.post('/update-profile', express.json(), async (req, res) => {
   }
 });
 
-// Endpoint untuk upload gambar profil
-router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const userId = req.user.id;
-  const profileImageUrl = `${req.file.filename}`; // Path file yang di-upload
-  
-  // Update URL gambar profil di database
-  const query = 'UPDATE users SET profile_picture_url = ? WHERE id = ?';
-  db.query(query, [profileImageUrl, userId], (err, result) => {
-    if (err) {
-      console.error('Error saving profile image URL:', err.message);
-      return res.status(500).json({ error: 'Failed to save profile image URL' });
-    }
-    res.json({ status: true, profile_image_url: profileImageUrl });
-  });
-});
-
 // Endpoint untuk Mengirim Pesan
 router.post('/send', verifyJWT, (req, res) => {
-  const { message } = req.body;
+  let { message } = req.body;
 
+  message = sanitizeString(message);
   if (!message) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  const username = req.user?.username; // Ambil username dari token
+  const username = req.user?.username;
   if (!username) {
     return res.status(403).json({ error: 'Username not found in token' });
   }
@@ -310,7 +378,7 @@ router.get('/all-messages', verifyJWT, (req, res) => {
   const sql = 'SELECT username, message, aes_key, iv, created_at FROM messages';
   db.query(sql, (err, results) => {
     if (err) {
-      console.error('Database query failed:', err.message); // Log error
+      console.error('Database query failed:', err.message);
       return res.status(500).json({ error: err.message });
     }
 
@@ -324,10 +392,10 @@ router.get('/all-messages', verifyJWT, (req, res) => {
         return {
           username: row.username,
           message: decryptedMessage,
-          created_at: new Date(row.created_at).toISOString(), // Pastikan format ISO 8601
+          created_at: new Date(row.created_at).toISOString(),
         };
       } catch (decryptionError) {
-        console.error('Error decrypting message:', decryptionError.message); // Log error
+        console.error('Error decrypting message:', decryptionError.message);
         return { username: row.username, message: '[Error decrypting message]', created_at: row.created_at };
       }
     });
@@ -336,29 +404,16 @@ router.get('/all-messages', verifyJWT, (req, res) => {
   });
 });
 
-// Reset Password Endpoint
-router.post('/reset-password', (req, res) => {
-  const { username, newPassword } = req.body;
-
-  if (!username || !newPassword) {
-    return res.status(400).json({ error: 'Username and new password are required' });
-  }
-
-  const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
-  const sql = 'UPDATE users SET password = ? WHERE username = ?';
-
-  db.query(sql, [hashedPassword, username], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ status: 'Password updated successfully' });
-  });
-});
-
 // Register Endpoint
 router.post('/register', (req, res) => {
-  const { username, password } = req.body;
+  let { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
+  username = sanitizeString(username);
+  if (!isValidUsername(username)) {
+    return res.status(400).json({ error: 'Invalid username' });
+  }
+  if (!isValidPassword(password)) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
 
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
@@ -372,10 +427,14 @@ router.post('/register', (req, res) => {
 
 // Endpoint Login
 router.post('/login', (req, res) => {
-  const { username, password } = req.body;
+  let { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
+  username = sanitizeString(username);
+  if (!isValidUsername(username)) {
+    return res.status(400).json({ error: 'Invalid username' });
+  }
+  if (!isValidPassword(password)) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
 
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
@@ -386,7 +445,6 @@ router.post('/login', (req, res) => {
 
     if (results.length > 0) {
       const token = jwt.sign({ id: results[0].id, username }, JWT_SECRET, { expiresIn: '1h' });
-      console.log('Generated Token:', token); // Debug token yang dihasilkan
       res.json({ status: 'Login successful', token });
     } else {
       res.status(401).json({ error: 'Invalid username or password' });
