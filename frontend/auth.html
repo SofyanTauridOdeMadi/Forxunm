@@ -148,8 +148,9 @@
       <input id="loginUsername" type="text" class="form-control mb-3" placeholder="Username">
       <input id="loginPassword" type="password" class="form-control mb-3" placeholder="Password">
       <button id="loginBtn" type="button" class="btn btn-orange w-100 mb-3">Login</button>
+      <div class="g-recaptcha mb-3" data-sitekey="6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B"></div>
       <div class="toggle-section">
-        Don't have an account? <span onclick="toggleAuth()">Register</span>
+        Don't have an account? <span id="toggleRegister" style="color:#ff8c00; cursor:pointer;">Register</span>
       </div>
     </div>
 
@@ -159,8 +160,9 @@
       <input id="registerUsername" type="text" class="form-control mb-3" placeholder="Username">
       <input id="registerPassword" type="password" class="form-control mb-3" placeholder="Password">
       <button id="registerBtn" type="button" class="btn btn-orange w-100 mb-3">Register</button>
+      <div class="g-recaptcha mb-3" data-sitekey="6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B"></div>
       <div class="toggle-section">
-        Already have an account? <span onclick="toggleAuth()">Login</span>
+        Already have an account? <span id="toggleLogin" style="color:#ff8c00; cursor:pointer;">Login</span>
       </div>
     </div>
   </div>
@@ -184,7 +186,20 @@
     </div>
   </div>
 
+  <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoadCallback&render=explicit" async defer></script>
   <script>
+    let loginRecaptchaWidgetId;
+    let registerRecaptchaWidgetId;
+
+    function onRecaptchaLoadCallback() {
+      loginRecaptchaWidgetId = grecaptcha.render('loginRecaptcha', {
+        'sitekey': '6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B'
+      });
+      registerRecaptchaWidgetId = grecaptcha.render('registerRecaptcha', {
+        'sitekey': '6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B'
+      });
+    }
+
     /**
      * Fungsi untuk toggle antara login dan register form
      */
@@ -194,6 +209,10 @@
       loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
       registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
     }
+
+    // Add event listeners for toggle spans instead of inline onclick
+    document.getElementById('toggleRegister').addEventListener('click', toggleAuth);
+    document.getElementById('toggleLogin').addEventListener('click', toggleAuth);
 
     /**
      * Fungsi untuk menampilkan dan menyembunyikan loading spinner
@@ -213,9 +232,15 @@
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
+      const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
 
       if (!username || !password) {
         alert('Please fill in both fields!');
+        return;
+      }
+
+      if (!recaptchaResponse) {
+        alert('Please complete the reCAPTCHA');
         return;
       }
 
@@ -225,7 +250,7 @@
         const response = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ username, password, recaptchaResponse }),
         });
 
         const result = await response.json();
@@ -236,11 +261,13 @@
           window.location.href = 'chat.html'; // Redirect ke halaman chat
         } else {
           showToast('Error: ' + result.error); // Tampilkan pesan error
+          grecaptcha.reset(loginRecaptchaWidgetId);
         }
       } catch (error) {
         console.error('Error during login:', error);
         toggleLoading(false);  // Sembunyikan spinner
         showToast('Something went wrong during login. Please try again.');
+        grecaptcha.reset(loginRecaptchaWidgetId);
       }
     });
 
@@ -250,9 +277,15 @@
     document.getElementById('registerBtn').addEventListener('click', async () => {
       const username = document.getElementById('registerUsername').value.trim();
       const password = document.getElementById('registerPassword').value.trim();
+      const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
 
       if (!username || !password) {
         alert('Please fill in both fields!');
+        return;
+      }
+
+      if (!recaptchaResponse) {
+        alert('Please complete the reCAPTCHA');
         return;
       }
 
@@ -262,7 +295,7 @@
         const response = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ username, password, recaptchaResponse }),
         });
 
         const result = await response.json();
@@ -271,13 +304,16 @@
         if (result.status === 'Registration successful') {
           alert('Registration successful! Please log in.');
           toggleAuth(); // Pindah ke login form
+          grecaptcha.reset(registerRecaptchaWidgetId);
         } else {
           showToast('Error: ' + result.error); // Tampilkan pesan error
+          grecaptcha.reset(registerRecaptchaWidgetId);
         }
       } catch (error) {
         console.error('Error during registration:', error);
         toggleLoading(false);  // Sembunyikan spinner
         showToast('Something went wrong during registration. Please try again.');
+        grecaptcha.reset(registerRecaptchaWidgetId);
       }
     });
 
@@ -290,7 +326,6 @@
       toastElement.querySelector('.toast-body').innerHTML = message;
       toast.show();
     }
-  </script>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>

@@ -6,6 +6,8 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 
+const fetch = require('node-fetch');
+
 // Helper functions for validation and sanitization
 function isValidNumber(value) {
   return !isNaN(value) && Number.isInteger(Number(value)) && Number(value) > 0;
@@ -404,9 +406,18 @@ router.get('/all-messages', verifyJWT, (req, res) => {
   });
 });
 
-// Register Endpoint
-router.post('/register', (req, res) => {
-  let { username, password } = req.body;
+// Register Endpoint with reCAPTCHA verification
+router.post('/register', async (req, res) => {
+  let { username, password, recaptchaResponse } = req.body;
+
+  if (!recaptchaResponse) {
+    return res.status(400).json({ error: 'reCAPTCHA token is missing' });
+  }
+
+  const recaptchaValid = await verifyRecaptcha(recaptchaResponse);
+  if (!recaptchaValid) {
+    return res.status(400).json({ error: 'Failed reCAPTCHA verification' });
+  }
 
   username = sanitizeString(username);
   if (!isValidUsername(username)) {
@@ -425,9 +436,52 @@ router.post('/register', (req, res) => {
   });
 });
 
-// Endpoint Login
-router.post('/login', (req, res) => {
-  let { username, password } = req.body;
+// Helper function to verify Google reCAPTCHA Enterprise token
+async function verifyRecaptchaEnterprise(token, projectID, recaptchaKey, recaptchaAction) {
+  const projectPath = client.projectPath(projectID);
+
+  const request = {
+    assessment: {
+      event: {
+        token: token,
+        siteKey: recaptchaKey,
+      },
+    },
+    parent: projectPath,
+  };
+
+  try {
+    const [response] = await client.createAssessment(request);
+
+    if (!response.tokenProperties.valid) {
+      console.log(`The CreateAssessment call failed because the token was: ${response.tokenProperties.invalidReason}`);
+      return { success: false, reason: response.tokenProperties.invalidReason };
+    }
+
+    if (response.tokenProperties.action !== recaptchaAction) {
+      console.log("The action attribute in your reCAPTCHA tag does not match the action you are expecting to score");
+      return { success: false, reason: "action_mismatch" };
+    }
+
+    return { success: true, score: response.riskAnalysis.score, reasons: response.riskAnalysis.reasons };
+  } catch (error) {
+    console.error('Error verifying reCAPTCHA Enterprise:', error);
+    return { success: false, reason: 'verification_error' };
+  }
+}
+
+// Endpoint Login with Login Throttling and reCAPTCHA v2 verification
+router.post('/login', async (req, res) => {
+  let { username, password, recaptchaResponse } = req.body;
+
+  if (!recaptchaResponse) {
+    return res.status(400).json({ error: 'reCAPTCHA token is missing' });
+  }
+
+  const recaptchaValid = await verifyRecaptcha(recaptchaResponse);
+  if (!recaptchaValid) {
+    return res.status(400).json({ error: 'Failed reCAPTCHA verification' });
+  }
 
   username = sanitizeString(username);
   if (!isValidUsername(username)) {
@@ -437,17 +491,61 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
 
-  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-  const sql = 'SELECT id FROM users WHERE username = ? AND password = ?';
+  const now = new Date();
+  const LOCKOUT_THRESHOLD = 5; // Max failed attempts before lockout
+  const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 
-  db.query(sql, [username, hashedPassword], (err, results) => {
+  // First, get user info including failed_login_attempts and lockout_until
+  const sqlGetUser = 'SELECT id, password, failed_login_attempts, lockout_until FROM users WHERE username = ?';
+  db.query(sqlGetUser, [username], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
 
-    if (results.length > 0) {
-      const token = jwt.sign({ id: results[0].id, username }, JWT_SECRET, { expiresIn: '1h' });
-      res.json({ status: 'Login successful', token });
+    if (results.length === 0) {
+      // User not found - to prevent username enumeration, respond with generic message
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    const user = results[0];
+
+    // Check if user is currently locked out
+    if (user.lockout_until && new Date(user.lockout_until) > now) {
+      const lockoutMinutes = Math.ceil((new Date(user.lockout_until) - now) / 60000);
+      return res.status(403).json({ error: `Account locked due to too many failed login attempts. Try again in ${lockoutMinutes} minute(s).` });
+    }
+
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+    if (hashedPassword === user.password) {
+      // Successful login: reset failed_login_attempts and lockout_until
+      const resetSql = 'UPDATE users SET failed_login_attempts = 0, lockout_until = NULL WHERE id = ?';
+      db.query(resetSql, [user.id], (resetErr) => {
+        if (resetErr) {
+          console.error('Error resetting login attempts:', resetErr.message);
+          // Proceed with login anyway
+        }
+        const token = jwt.sign({ id: user.id, username }, JWT_SECRET, { expiresIn: '1h' });
+        return res.json({ status: 'Login successful', token });
+      });
     } else {
-      res.status(401).json({ error: 'Invalid username or password' });
+      // Failed login: increment failed_login_attempts
+      let failedAttempts = user.failed_login_attempts + 1;
+      let lockoutUntil = null;
+
+      if (failedAttempts >= LOCKOUT_THRESHOLD) {
+        lockoutUntil = new Date(now.getTime() + LOCKOUT_DURATION);
+      }
+
+      const updateSql = 'UPDATE users SET failed_login_attempts = ?, lockout_until = ? WHERE id = ?';
+      db.query(updateSql, [failedAttempts, lockoutUntil, user.id], (updateErr) => {
+        if (updateErr) {
+          console.error('Error updating failed login attempts:', updateErr.message);
+        }
+        if (lockoutUntil) {
+          return res.status(403).json({ error: `Account locked due to too many failed login attempts. Try again in 15 minutes.` });
+        } else {
+          return res.status(401).json({ error: 'Invalid username or password' });
+        }
+      });
     }
   });
 });
