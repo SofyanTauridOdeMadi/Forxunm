@@ -9,38 +9,46 @@ const apiRoutes = require('./backend/api');
 const app = express();
 
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: [
-        "'self'",
-        "https://cdn.jsdelivr.net",
-        "https://cdnjs.cloudflare.com",
-        "https://code.jquery.com",
-        "'unsafe-inline'",
-        "'unsafe-eval'"
-      ],
-      styleSrc: [
-        "'self'",
-        "https://cdn.jsdelivr.net",
-        "https://cdnjs.cloudflare.com",
-        "'unsafe-inline'"
-      ],
-      imgSrc: [
-        "'self'",
-        "data:",
-        "https://*"
-      ],
-      connectSrc: ["'self'"],
-      fontSrc: [
-        "'self'",
-        "https://cdn.jsdelivr.net",
-        "https://cdnjs.cloudflare.com"
-      ],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
-  },
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: [
+            "'self'",
+            "https://cdn.jsdelivr.net",
+            "https://cdnjs.cloudflare.com",
+            "https://code.jquery.com",
+            "https://www.google.com/recaptcha/api.js",
+            "https://www.google.com/recaptcha/",
+            "https://www.gstatic.com",
+            "'unsafe-inline'",
+            "'unsafe-eval'"
+          ],
+          styleSrc: [
+            "'self'",
+            "https://cdn.jsdelivr.net",
+            "https://cdnjs.cloudflare.com",
+            "'unsafe-inline'"
+          ],
+          imgSrc: [
+            "'self'",
+            "data:",
+            "https://*",
+            "https://localhost:3443/assets/*"
+          ],
+          connectSrc: ["'self'", "https://www.google.com"],
+          fontSrc: [
+            "'self'",
+            "https://cdn.jsdelivr.net",
+            "https://cdnjs.cloudflare.com"
+          ],
+          frameSrc: [
+            "https://www.google.com",
+            "https://www.gstatic.com"
+          ],
+          objectSrc: ["'none'"],
+          upgradeInsecureRequests: [],
+        },
+      },
 }));
 
 app.use(bodyParser.json());
@@ -53,7 +61,7 @@ app.use('/api', apiRoutes);
 
 // Redirect root to /home.html
 app.get('/', (req, res) => {
-    res.redirect('/auth.html');
+    res.redirect('/home.html');
 });
 
 app.get('/home.html', (req, res) => {
@@ -82,5 +90,12 @@ const sslOptions = {
 };
 
 https.createServer(sslOptions, app).listen(HTTPS_PORT, () => {
-  console.log(`HTTPS Server berjalan di https://localhost:${HTTPS_PORT} - Mode: ${NODE_ENV}`);
+  console.log(`
+  ▄▖    ▖▖       
+  ▙▖▛▌▛▘▚▘▌▌▛▌▛▛▌
+  ▌ ▙▌▌ ▌▌▙▌▌▌▌▌▌ By Sofyan Taurid Ode Madi
+  
+  HTTPS Server berjalan di https://localhost:${HTTPS_PORT} - Mode: ${NODE_ENV}
+  `);
 });
+

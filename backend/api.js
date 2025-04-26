@@ -6,7 +6,23 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 
-const fetch = require('node-fetch');
+const fetch = require('node-fetch').default;
+
+// Helper function to verify Google reCAPTCHA v2 token
+async function verifyRecaptcha(token) {
+  if (!token) return false;
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY || '6Lf5KCArAAAAAPCLdMpZWQX-fyceeCH1XmA0TA2R';
+  const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`;
+
+  try {
+    const response = await fetch(verificationUrl, { method: 'POST' });
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('Error verifying reCAPTCHA:', error);
+    return false;
+  }
+}
 
 // Helper functions for validation and sanitization
 function isValidNumber(value) {
@@ -53,9 +69,14 @@ function verifyJWT(req, res, next) {
   });
 }
 
-// **GET**: Mendapatkan semua thread
+// **GET**: Mendapatkan semua thread dengan username user
 router.get('/threads', (req, res) => {
-  const query = 'SELECT * FROM threads WHERE is_deleted = 0';
+  const query = `
+    SELECT t.*, u.username 
+    FROM threads t 
+    JOIN users u ON t.user_id = u.id 
+    WHERE t.is_deleted = 0
+  `;
   db.query(query, (err, results) => {
       if (err) {
           res.status(500).json({ error: err.message });

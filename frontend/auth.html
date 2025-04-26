@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Authentication</title>
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://www.google.com/recaptcha/api.js https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval'">
+  <title>ForXunm</title>
+  <link rel="icon" href="/talk.png" type="image/png" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
   <style>
@@ -148,7 +150,7 @@
       <input id="loginUsername" type="text" class="form-control mb-3" placeholder="Username">
       <input id="loginPassword" type="password" class="form-control mb-3" placeholder="Password">
       <button id="loginBtn" type="button" class="btn btn-orange w-100 mb-3">Login</button>
-      <div class="g-recaptcha mb-3" data-sitekey="6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B"></div>
+      <div class="g-recaptcha mb-3" data-sitekey="6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B" data-callback="onReCaptchaSuccess"></div>
       <div class="toggle-section">
         Don't have an account? <span id="toggleRegister" style="color:#ff8c00; cursor:pointer;">Register</span>
       </div>
@@ -160,7 +162,7 @@
       <input id="registerUsername" type="text" class="form-control mb-3" placeholder="Username">
       <input id="registerPassword" type="password" class="form-control mb-3" placeholder="Password">
       <button id="registerBtn" type="button" class="btn btn-orange w-100 mb-3">Register</button>
-      <div class="g-recaptcha mb-3" data-sitekey="6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B"></div>
+      <div class="g-recaptcha mb-3" data-sitekey="6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B" data-callback="onReCaptchaSuccess"></div>
       <div class="toggle-section">
         Already have an account? <span id="toggleLogin" style="color:#ff8c00; cursor:pointer;">Login</span>
       </div>
@@ -186,18 +188,12 @@
     </div>
   </div>
 
-  <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoadCallback&render=explicit" async defer></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script>
-    let loginRecaptchaWidgetId;
-    let registerRecaptchaWidgetId;
+    let recaptchaToken = '';
 
-    function onRecaptchaLoadCallback() {
-      loginRecaptchaWidgetId = grecaptcha.render('loginRecaptcha', {
-        'sitekey': '6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B'
-      });
-      registerRecaptchaWidgetId = grecaptcha.render('registerRecaptcha', {
-        'sitekey': '6Lf5KCArAAAAADZC6c92YGfvkLxCAp8NNMCZ7r7B'
-      });
+    function onReCaptchaSuccess(token) {
+      recaptchaToken = token;
     }
 
     /**
@@ -232,14 +228,13 @@
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
-      const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
 
       if (!username || !password) {
         alert('Please fill in both fields!');
         return;
       }
 
-      if (!recaptchaResponse) {
+      if (!recaptchaToken) {
         alert('Please complete the reCAPTCHA');
         return;
       }
@@ -250,7 +245,7 @@
         const response = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password, recaptchaResponse }),
+          body: JSON.stringify({ username, password, recaptchaResponse: recaptchaToken }),
         });
 
         const result = await response.json();
@@ -261,13 +256,15 @@
           window.location.href = 'chat.html'; // Redirect ke halaman chat
         } else {
           showToast('Error: ' + result.error); // Tampilkan pesan error
-          grecaptcha.reset(loginRecaptchaWidgetId);
+          grecaptcha.reset();
+          recaptchaToken = '';
         }
       } catch (error) {
         console.error('Error during login:', error);
         toggleLoading(false);  // Sembunyikan spinner
         showToast('Something went wrong during login. Please try again.');
-        grecaptcha.reset(loginRecaptchaWidgetId);
+        grecaptcha.reset();
+        recaptchaToken = '';
       }
     });
 
@@ -277,14 +274,13 @@
     document.getElementById('registerBtn').addEventListener('click', async () => {
       const username = document.getElementById('registerUsername').value.trim();
       const password = document.getElementById('registerPassword').value.trim();
-      const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
 
       if (!username || !password) {
         alert('Please fill in both fields!');
         return;
       }
 
-      if (!recaptchaResponse) {
+      if (!recaptchaToken) {
         alert('Please complete the reCAPTCHA');
         return;
       }
@@ -295,7 +291,7 @@
         const response = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password, recaptchaResponse }),
+          body: JSON.stringify({ username, password, recaptchaResponse: recaptchaToken }),
         });
 
         const result = await response.json();
@@ -304,16 +300,19 @@
         if (result.status === 'Registration successful') {
           alert('Registration successful! Please log in.');
           toggleAuth(); // Pindah ke login form
-          grecaptcha.reset(registerRecaptchaWidgetId);
+          grecaptcha.reset();
+          recaptchaToken = '';
         } else {
           showToast('Error: ' + result.error); // Tampilkan pesan error
-          grecaptcha.reset(registerRecaptchaWidgetId);
+          grecaptcha.reset();
+          recaptchaToken = '';
         }
       } catch (error) {
         console.error('Error during registration:', error);
         toggleLoading(false);  // Sembunyikan spinner
         showToast('Something went wrong during registration. Please try again.');
-        grecaptcha.reset(registerRecaptchaWidgetId);
+        grecaptcha.reset();
+        recaptchaToken = '';
       }
     });
 
@@ -326,7 +325,7 @@
       toastElement.querySelector('.toast-body').innerHTML = message;
       toast.show();
     }
-
+  </script>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
