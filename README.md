@@ -1,4 +1,3 @@
-# 🌐 **Forxunm** - Forum Komunikasi yang Aman
 <div align="center">
   <img src="assets/logo.png" alt="Forxunm Cover" width="500">
 </div>
@@ -20,12 +19,11 @@
 ---
 
 ## 🔒 **Keamanan**
-- **AES Encryption**  
-  AES digunakan untuk mengenkripsi data percakapan dalam forum dan pesan pribadi. Ini memastikan bahwa hanya penerima yang memiliki kunci yang dapat membuka dan membaca pesan tersebut.
+- **Enkripsi Hybrid (AES + RSA)**  
+  Sistem menggunakan kombinasi AES dan RSA untuk menjaga kerahasiaan dan integritas data. AES digunakan untuk mengenkripsi isi pesan dan data percakapan, sementara RSA digunakan untuk mengenkripsi pertukaran kunci antara server dan pengguna. Pendekatan ini memastikan bahwa hanya pihak yang berwenang yang dapat mengakses dan membaca data sensitif.
   
-- **RSA Encryption**  
-  RSA digunakan untuk enkripsi kunci komunikasi antara server dan pengguna. Ini menjamin bahwa kunci privat tidak dapat diakses oleh pihak ketiga yang tidak berwenang.
-
+- **Perlindungan dari Serangan Umum**  
+  Sistem telah diperkuat untuk menangkal berbagai jenis serangan seperti Cross-Site Scripting (XSS), Cross-Site Request Forgery (CSRF), File Upload Vulnerability, SQL Injection, Command Injection, dan Brute Force Attack. Melalui validasi input yang ketat, pembatasan akses, serta pemantauan keamanan aktif, data pengguna tetap aman dan terlindungi.
 ---
 
 ## 💻 **Teknologi yang Digunakan**
@@ -37,6 +35,10 @@
   Sistem enkripsi untuk menjaga keamanan data pengguna dan komunikasi di dalam forum.
 - **Bootstrap CSS**  
   Untuk membuat tampilan lebih interaktif dan lebih kece.
+- **JWT (JSON Web Token)**
+  Manajemen sesi dan autentikasi pengguna secara aman dan efisien.
+- **Google reCAPTCHA**
+  untuk mencegah aktivitas bot dan serangan brute force dengan verifikasi pengguna secara cerdas.
 
 ---
 
@@ -47,24 +49,15 @@
    Pilih forum yang ingin kamu ikuti, atau buat forum baru untuk topik tertentu.
 3. **Mengirim Pesan**  
    Mulai diskusi dan kirimkan pesan yang aman dengan enkripsi **AES**.
+4. **Atur Pengguna**  
+   Kelola akun, Mulai dari email dan bio dan foto profile.
 
 ---
 
 ## 🛠️ **To-Do List**
-### **Setup Awal**
-- [x] Membuat struktur folder dan file proyek
-- [x] Implementasi enkripsi AES & RSA
 - [ ] Menyusun struktur forum dan sistem kategori
-- [ ] Integrasi MySQL untuk autentikasi
-
-### **Fitur Utama**
-- [ ] Pengembangan forum diskusi real-time
-- [x] Menambahkan sistem enkripsi untuk pesan
 - [ ] Sistem notifikasi push
-
-### **Fitur Tambahan**
 - [ ] Menambahkan pengaturan privasi dan kontrol akses
-- [ ] Menambahkan integrasi untuk unggah file
 - [ ] Menyempurnakan UI/UX untuk kenyamanan pengguna
 
 ---
