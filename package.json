@@ -13,6 +13,7 @@
     "@google-cloud/recaptcha-enterprise": "^6.0.1",
     "axios": "^1.9.0",
     "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
     "express": "^4.21.2",
     "helmet": "^8.1.0",

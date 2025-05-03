@@ -219,4 +219,4 @@ router.post('/register', express.json(), async (req, res) => {
   });
 });
 
-module.exports = { router, verifyJWT };
+module.exports = { router, verifyJWT, sanitizeString };

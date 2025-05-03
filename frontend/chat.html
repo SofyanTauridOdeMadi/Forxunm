@@ -159,8 +159,6 @@
       const messagesContainer = document.getElementById('messages');
       const searchInput = document.getElementById('searchInput');
 
-      let replyTo = null;
-
       // Fungsi untuk membersihkan input dan mencegah XSS
       function sanitizeInput(input) {
         const element = document.createElement('div');
@@ -170,7 +168,7 @@
 
       // Fungsi untuk memuat semua pesan
       async function loadMessages() {
-        const response = await fetch('/api/all-messages', {
+        const response = await fetch('/api/chat/all-messages', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -187,14 +185,12 @@
             // Format waktu
             const formattedDate = new Date(msg.created_at).toLocaleString();
 
-            // Sanitasi dan tampilkan pesan, username, dan replyTo
+            // Sanitasi dan tampilkan pesan dan username
             messageElement.innerHTML = `
               <div class="card-body">
                 <h6 class="card-title">${sanitizeInput(msg.username)}</h6>
                 <p class="card-text">${sanitizeInput(msg.message)}</p>
                 <p class="text-muted small">${formattedDate}</p>
-                ${msg.replyTo ? `<div class="text-muted small">Replying to: ${sanitizeInput(msg.replyTo)}</div>` : ''}
-                <button class="btn btn-outline-warning btn-sm reply-button" data-id="${msg.id}">Reply</button>
               </div>
             `;
             messagesContainer.appendChild(messageElement);
@@ -202,14 +198,6 @@
 
           // Scroll otomatis ke bawah
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-          document.querySelectorAll('.reply-button').forEach(button => {
-            button.addEventListener('click', (e) => {
-              replyTo = e.target.dataset.id; // Simpan ID pesan yang dibalas
-              messageInput.focus();
-              messageInput.placeholder = 'Replying...';
-            });
-          });
         } else {
           alert(result.error || 'Failed to load messages');
         }
@@ -226,13 +214,28 @@
         // Sanitasi pesan untuk mencegah XSS
         message = sanitizeInput(message);
 
-        const payload = replyTo ? { message, replyTo } : { message };
+        const payload = { message };
 
-        const response = await fetch('/api/send', {
+        // Fetch CSRF token from backend
+        const csrfToken = await fetch('/api/csrf-token').then(res => {
+          if (res.ok) return res.json();
+          throw new Error('Failed to fetch CSRF token');
+        }).then(data => data.csrfToken).catch(err => {
+          console.error(err);
+          return null;
+        });
+
+        if (!csrfToken) {
+          alert('CSRF token is missing. Cannot send message.');
+          return;
+        }
+
+        const response = await fetch('/api/chat/send', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
+            'x-csrf-token': csrfToken,
           },
           body: JSON.stringify(payload),
         });
@@ -241,7 +244,6 @@
         if (result.status) {
           messageInput.value = '';
           messageInput.placeholder = 'Type your message...';
-          replyTo = null;
           loadMessages();
         } else {
           alert(result.error);

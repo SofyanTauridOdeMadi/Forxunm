@@ -115,6 +115,20 @@
         <!-- Threads will be populated dynamically here -->
       </div>
 
+      <!-- Thread List -->
+      <div id="threadList">
+        <!-- Threads will be populated dynamically here -->
+      </div>
+      <style>
+        /* Override Bootstrap alert-info to orange */
+        #announcementBanner {
+          background-color: #ffb74d !important;
+          color: #fff !important;
+          border-color: #ff9800 !important;
+        }
+      </style>
+
+
       <!-- Banner Pengumuman -->
       <div id="announcementBanner" class="alert alert-info mt-3" style="display:none;"></div>
 
@@ -267,14 +281,21 @@
                         <span class="text-muted">Posted by ${thread.username}</span>
                         <div class="btn-group">
                             <button class="btn btn-purple btn-upvote" data-thread-id="${thread.thread_id}">Upvote (${thread.upvotes})</button>
-                            <button class="btn btn-outline-secondary btn-reply" data-thread-id="${thread.thread_id}">Reply</button>
                             ${thread.user_id === currentUserId ? `<button class="btn btn-danger btn-delete" data-thread-id="${thread.thread_id}">Delete</button>` : ''}
                         </div>
+                    </div>
+                    <div class="replies mt-3" id="replies-${thread.thread_id}">
+                      <!-- Replies will be loaded here -->
+                    </div>
+                    <div class="input-group mt-3">
+                      <input type="text" class="form-control reply-input" placeholder="Write a reply..." data-thread-id="${thread.thread_id}">
+                      <button class="btn btn-purple btn-submit-reply" data-thread-id="${thread.thread_id}">Submit</button>
                     </div>
                 </div>
             `;
             threadsContainer.appendChild(threadElement);
         });
+        attachReplyEventListeners();
     }
 
     // Fungsi untuk membuat thread baru
@@ -334,16 +355,15 @@
     }
 
     // Fungsi untuk membuka modal reply
-    function openReplyModal(threadId) {
-        const threadElement = document.querySelector(`[data-thread-id="${threadId}"]`);
-        document.getElementById('replyContent').setAttribute('data-thread-id', threadId);
-        $('#replyModal').modal('show');
-    }
+    // Removed since replies are now inline
+    // function openReplyModal(threadId) {
+    //     const threadElement = document.querySelector(`[data-thread-id="${threadId}"]`);
+    //     document.getElementById('replyContent').setAttribute('data-thread-id', threadId);
+    //     $('#replyModal').modal('show');
+    // }
 
     // Fungsi untuk mengirimkan balasan
-    function submitReply() {
-        const threadId = document.getElementById('replyContent').getAttribute('data-thread-id');
-        const replyContent = document.getElementById('replyContent').value;
+    function submitReply(threadId, replyContent) {
         const userId = getUserIdFromToken();
 
         if (replyContent && userId) {
@@ -367,7 +387,6 @@
             .then(data => {
                 alert('Reply submitted!');
                 loadThreads();  // Reload threads
-                $('#replyModal').modal('hide'); // Menutup modal setelah reply dikirim
             })
             .catch(error => {
                 console.error('Error submitting reply:', error);
@@ -441,16 +460,34 @@
                 upvoteThread(threadId);
             });
         });
-        document.querySelectorAll('.btn-reply').forEach(button => {
-            button.addEventListener('click', () => {
-                const threadId = button.getAttribute('data-thread-id');
-                openReplyModal(threadId);
-            });
-        });
+        // Remove reply button event listener since reply input is inline
+        // document.querySelectorAll('.btn-reply').forEach(button => {
+        //     button.addEventListener('click', () => {
+        //         const threadId = button.getAttribute('data-thread-id');
+        //         openReplyModal(threadId);
+        //     });
+        // });
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', () => {
                 const threadId = button.getAttribute('data-thread-id');
                 deleteThread(threadId);
+            });
+        });
+        attachReplyEventListeners();
+    }
+
+    function attachReplyEventListeners() {
+        document.querySelectorAll('.btn-submit-reply').forEach(button => {
+            button.addEventListener('click', () => {
+                const threadId = button.getAttribute('data-thread-id');
+                const input = document.querySelector(`.reply-input[data-thread-id="${threadId}"]`);
+                const replyContent = input.value.trim();
+                if (replyContent) {
+                    submitReply(threadId, replyContent);
+                    input.value = '';
+                } else {
+                    alert('Please write a reply.');
+                }
             });
         });
     }

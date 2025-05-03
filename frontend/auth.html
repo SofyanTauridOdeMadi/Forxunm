@@ -123,11 +123,58 @@
     /* Animasi untuk toast yang muncul dari atas */
     .toast-container {
       position: fixed;
-      top: 20px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
+      transform: translate(-50%, -50%);
+      z-index: 1050;
+      max-width: 90%;
+      width: 400px;
+      pointer-events: auto;
+      animation: bounceIn 0.6s ease forwards;
     }
+    .toast {
+      opacity: 0.95;
+      box-shadow: 0 0 20px rgba(255, 140, 0, 0.8);
+      border-radius: 15px;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #ff8c00, #ffb74d);
+      color: white;
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      border: none;
+    }
+    .toast .toast-body {
+      padding: 1.2rem 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+    .btn-close {
+      margin-right: 0.5rem;
+      margin-top: 0.5rem;
+      filter: brightness(0) invert(1);
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+    .btn-close:hover {
+      opacity: 1;
+    }
+
+    @keyframes bounceIn {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -60%) scale(0.5);
+      }
+      60% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.05);
+      }
+      80% {
+        transform: translate(-50%, -50%) scale(0.95);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
 
     /* Responsif */
     @media (max-width: 768px) {
@@ -253,26 +300,44 @@
       const otpCode = document.getElementById('loginOtpCode').value.trim();
 
       if (!userInput) {
-        alert('Please enter your username!');
+        showToast('Please enter your username!');
         return;
       }
 
       if (!password && !otpCode) {
-        alert('Please enter either password or OTP code!');
+        showToast('Please enter either password or OTP code!');
         return;
       }
 
       if (!recaptchaToken) {
-        alert('Please complete the reCAPTCHA');
+        showToast('Please complete the reCAPTCHA');
         return;
       }
 
       toggleLoading(true);
 
       try {
+        // Fetch CSRF token from backend
+        const csrfToken = await fetch('/api/csrf-token').then(res => {
+          if (res.ok) return res.json();
+          throw new Error('Failed to fetch CSRF token');
+        }).then(data => data.csrfToken).catch(err => {
+          console.error(err);
+          return null;
+        });
+
+          if (!csrfToken) {
+          showToast('CSRF token is missing. Cannot login.');
+          toggleLoading(false);
+          return;
+        }
+
         const response = await fetch('https://localhost:3443/api/auth/login', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
+          },
           body: JSON.stringify({ userInput, password, otpCode, recaptchaResponse: recaptchaToken }),
         });
 
@@ -282,7 +347,7 @@
         if (result.status === 'Login successful') {
           localStorage.setItem('token', result.token);
           window.location.href = 'chat.html';
-        } else {
+          } else {
           showToast('Error: ' + result.error);
           grecaptcha.reset();
           recaptchaToken = '';
@@ -304,26 +369,44 @@
       console.log('recaptchaToken:', recaptchaToken);
 
       if (!username) {
-        alert('Please enter username!');
+        showToast('Please enter username!');
         return;
       }
 
       if (!password) {
-        alert('Please enter password!');
+        showToast('Please enter password!');
         return;
       }
 
       if (!recaptchaToken) {
-        alert('Please complete the reCAPTCHA');
+        showToast('Please complete the reCAPTCHA');
         return;
       }
 
       toggleLoading(true);
 
       try {
+        // Fetch CSRF token from backend
+        const csrfToken = await fetch('/api/csrf-token').then(res => {
+          if (res.ok) return res.json();
+          throw new Error('Failed to fetch CSRF token');
+        }).then(data => data.csrfToken).catch(err => {
+          console.error(err);
+          return null;
+        });
+
+          if (!csrfToken) {
+          showToast('CSRF token is missing. Cannot register.');
+          toggleLoading(false);
+          return;
+        }
+
         const response = await fetch('https://localhost:3443/api/auth/register', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
+          },
           body: JSON.stringify({ username, password, recaptchaResponse: recaptchaToken }),
         });
 
@@ -339,7 +422,7 @@
           showForm('loginForm');
           grecaptcha.reset();
           recaptchaToken = '';
-        } else {
+          } else {
           showToast('Error: ' + result.error);
           grecaptcha.reset();
           recaptchaToken = '';

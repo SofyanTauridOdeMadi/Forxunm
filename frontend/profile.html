@@ -276,10 +276,22 @@
       const email = document.getElementById('email').value;
       const bio = document.getElementById('bio').value;
       const confirmPassword = document.getElementById('confirmPassword').value.trim();
-      const csrfToken = document.getElementById('csrfToken').value; // Ambil CSRF Token
+      // Fetch CSRF token from backend
+      const csrfToken = await fetch('/api/csrf-token').then(res => {
+        if (res.ok) return res.json();
+        throw new Error('Failed to fetch CSRF token');
+      }).then(data => data.csrfToken).catch(err => {
+        console.error(err);
+        return null;
+      });
 
       if (!confirmPassword) {
         alert('Please enter your current password to confirm changes.');
+        return;
+      }
+
+      if (!csrfToken) {
+        alert('CSRF token is missing. Cannot update profile.');
         return;
       }
 
@@ -287,7 +299,6 @@
         email,
         bio,
         confirmPassword, // Current password for verification
-        csrfToken, // Kirim CSRF Token untuk validasi
       };
 
       const response = await fetch('/api/update-profile', {
@@ -295,6 +306,7 @@
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
         },
         body: JSON.stringify(body),
       });
@@ -334,11 +346,26 @@
     const formData = new FormData();
     formData.append('profile_image', file);
 
+    // Fetch CSRF token from backend
+    const csrfToken = await fetch('/api/csrf-token').then(res => {
+      if (res.ok) return res.json();
+      throw new Error('Failed to fetch CSRF token');
+    }).then(data => data.csrfToken).catch(err => {
+      console.error(err);
+      return null;
+    });
+
+    if (!csrfToken) {
+      alert('CSRF token is missing. Cannot upload profile image.');
+      return;
+    }
+
     // Mengirim permintaan upload gambar profil ke server
     const response = await fetch('/api/upload-profile-image', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
+        'x-csrf-token': csrfToken,
       },
       body: formData,
     });

