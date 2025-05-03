@@ -76,6 +76,10 @@ app.get('/auth.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'auth.html'));
 });
 
+app.get('/auth-2fa.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'auth-2fa.html'));
+});
+
 app.get('/chat.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'chat.html'));
 });
