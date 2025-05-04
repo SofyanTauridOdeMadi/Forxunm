@@ -44,10 +44,10 @@ function verifyJWT(req, res, next) {
 
 // Function to verify Google reCAPTCHA token
 async function verifyRecaptcha(token) {
-  const secretKey = process.env.RECAPTCHA_SECRET_KEY || '6LemlSwrAAAAAAHFVyKUJYF0R_CgggQTUUddKfsm';
+const secretKey = process.env.RECAPTCHA_SECRET_KEY || '6LcW8iwrAAAAAAN7m5we_bEMUp_7ApYjeOA1UnI4';
 
-  if (!secretKey || secretKey === '6LemlSwrAAAAAAHFVyKUJYF0R_CgggQTUUddKfsm') {
-    console.warn('Warning: RECAPTCHA_SECRET_KEY is not set or is using the placeholder value.');
+  if (!secretKey) {
+    console.warn('Warning: RECAPTCHA_SECRET_KEY is not set.');
     return false;
   }
 
@@ -56,6 +56,7 @@ async function verifyRecaptcha(token) {
   try {
     const response = await fetch(verificationUrl, { method: 'POST' });
     const data = await response.json();
+    console.log('reCAPTCHA verification response:', data);
     return data.success === true;
   } catch (error) {
     console.error('Error verifying reCAPTCHA:', error);

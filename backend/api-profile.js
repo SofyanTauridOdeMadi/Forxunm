@@ -3,6 +3,8 @@ const multer = require('multer');
 const crypto = require('crypto');
 const { verifyJWT } = require('./api-auth');
 const db = require('./db');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 
 // Helper functions for validation and sanitization
@@ -69,7 +71,7 @@ router.post('/upload-profile-image', verifyJWT, upload.single('profile_image'), 
   }
 
   const userId = req.user.id;
-  const profileImageUrl = `${req.file.filename}`; // Path file yang di-upload
+  const profileImageUrl = req.file.filename; // Save only filename without /uploads prefix
   
   // Update URL gambar profil di database
   const query = 'UPDATE users SET profile_picture_url = ? WHERE id = ?';
@@ -99,7 +101,24 @@ router.get('/user-profile', verifyJWT, (req, res) => {
     }
 
     if (results.length > 0) {
-      res.json({ status: true, user: results[0] });
+      const user = results[0];
+      // Check if profile_picture_url file exists
+      if (user.profile_picture_url) {
+        // Remove leading slash if present to avoid path.join treating it as absolute path
+        const relativePath = user.profile_picture_url.startsWith('/') ? user.profile_picture_url.slice(1) : user.profile_picture_url;
+        const filePath = path.join(__dirname, '..', 'uploads', relativePath);
+        if (!fs.existsSync(filePath)) {
+          // File does not exist, set default image URL
+          user.profile_picture_url = '/talk.png';
+        } else {
+          // Prepend slash to filename for URL
+          user.profile_picture_url = '/' + relativePath;
+        }
+      } else {
+        // No profile_picture_url set, use default image
+        user.profile_picture_url = '/talk.png';
+      }
+      res.json({ status: true, user });
     } else {
       res.status(404).json({ error: 'User not found' });
     }

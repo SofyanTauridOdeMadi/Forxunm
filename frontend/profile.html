@@ -240,6 +240,9 @@
             bioElement.value = userProfile.bio || ''; // Menampilkan bio jika ada
             if (userProfile.profile_picture_url) {
                 profileImageElement.src = userProfile.profile_picture_url;
+            } else {
+                console.warn('Profile picture URL is missing or invalid, using default image.');
+                profileImageElement.src = '/talk.png';
             }
         }
     } catch (error) {
@@ -253,22 +256,22 @@
       window.location.href = 'auth.html'; // Redirect ke halaman login
   }
 
-  async function fetchUserProfile() {
-    const token = localStorage.getItem('token');
-    const response = await fetch('/api/user-profile', {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-        },
-    });
+    async function fetchUserProfile() {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/profile/user-profile', {
+          headers: {
+              'Authorization': `Bearer ${token}`,
+          },
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (result.status && result.user) {
-        return result.user;
-    } else {
-        alert(result.error || 'Failed to load user profile');
+      if (result.status && result.user) {
+          return result.user;
+      } else {
+          alert(result.error || 'Failed to load user profile');
+      }
     }
-  }
 
     // Fungsi untuk memperbarui profil
     async function updateProfile() {
@@ -277,7 +280,7 @@
       const bio = document.getElementById('bio').value;
       const confirmPassword = document.getElementById('confirmPassword').value.trim();
       // Fetch CSRF token from backend
-      const csrfToken = await fetch('/api/csrf-token').then(res => {
+      const csrfToken = await fetch('/api/csrf-token', { credentials: 'include' }).then(res => {
         if (res.ok) return res.json();
         throw new Error('Failed to fetch CSRF token');
       }).then(data => data.csrfToken).catch(err => {
@@ -301,8 +304,9 @@
         confirmPassword, // Current password for verification
       };
 
-      const response = await fetch('/api/update-profile', {
+      const response = await fetch('/api/profile/update-profile', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -314,6 +318,7 @@
       const result = await response.json();
       if (result.status) {
         alert('Profile updated successfully');
+        window.location.reload();
       } else {
         alert(result.error || 'Failed to update profile');
       }
@@ -347,7 +352,7 @@
     formData.append('profile_image', file);
 
     // Fetch CSRF token from backend
-    const csrfToken = await fetch('/api/csrf-token').then(res => {
+    const csrfToken = await fetch('/api/csrf-token', { credentials: 'include' }).then(res => {
       if (res.ok) return res.json();
       throw new Error('Failed to fetch CSRF token');
     }).then(data => data.csrfToken).catch(err => {
@@ -361,8 +366,9 @@
     }
 
     // Mengirim permintaan upload gambar profil ke server
-    const response = await fetch('/api/upload-profile-image', {
+    const response = await fetch('/api/profile/upload-profile-image', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Authorization': `Bearer ${token}`,
         'x-csrf-token': csrfToken,
