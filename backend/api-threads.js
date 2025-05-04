@@ -49,7 +49,7 @@ router.get('/threads', (req, res) => {
 // **POST**: Membuat thread baru (dilindungi dengan verifyJWT)
 router.post('/threads', express.json(), verifyJWT, (req, res) => {
   if (!req.user) {
-    return res.redirect('/auth.html');
+    return res.status(401).json({ error: 'Unauthorized: No user information' });
   }
   let { user_id, title, content } = req.body;
 
@@ -103,7 +103,7 @@ router.get('/threads/:id/replies', (req, res) => {
 // **POST**: Membalas thread (dilindungi dengan verifyJWT)
 router.post('/threads/:id/reply', express.json(), verifyJWT, (req, res) => {
   if (!req.user) {
-    return res.redirect('/auth.html');
+    return res.status(401).json({ error: 'Unauthorized: No user information' });
   }
   let threadId = req.params.id;
   let { user_id, content } = req.body;
@@ -136,10 +136,12 @@ router.post('/threads/:id/reply', express.json(), verifyJWT, (req, res) => {
 // **DELETE**: Menghapus thread (soft delete, dilindungi dengan verifyJWT)
 router.delete('/threads/:id', verifyJWT, (req, res) => {
   if (!req.user) {
-    return res.redirect('/auth.html');
+    return res.status(401).json({ error: 'Unauthorized: No user information' });
   }
   let threadId = req.params.id;
   const userId = req.user.id;
+
+  console.log(`Delete thread request by userId: ${userId} for threadId: ${threadId}`);
 
   if (!isValidNumber(threadId)) {
     return res.status(400).json({ error: 'Invalid thread ID' });
@@ -150,20 +152,27 @@ router.delete('/threads/:id', verifyJWT, (req, res) => {
   const checkQuery = 'SELECT user_id FROM threads WHERE thread_id = ? AND is_deleted = 0';
   db.query(checkQuery, [threadId], (err, results) => {
     if (err) {
+      console.error('DB error checking thread ownership:', err.message);
       return res.status(500).json({ error: err.message });
     }
     if (results.length === 0) {
+      console.log('Thread not found or already deleted');
       return res.status(404).json({ error: 'Thread not found' });
     }
+    console.log(`Thread owner userId: ${results[0].user_id}`);
+
     if (results[0].user_id !== userId) {
+      console.log('Unauthorized delete attempt: userId does not match thread owner');
       return res.status(403).json({ error: 'Unauthorized to delete this thread' });
     }
 
     const deleteQuery = 'UPDATE threads SET is_deleted = 1 WHERE thread_id = ?';
     db.query(deleteQuery, [threadId], (err2, result) => {
       if (err2) {
+        console.error('DB error deleting thread:', err2.message);
         return res.status(500).json({ error: err2.message });
       }
+      console.log('Thread deleted successfully');
       res.status(200).json({ message: 'Thread deleted successfully!' });
     });
   });
@@ -172,7 +181,7 @@ router.delete('/threads/:id', verifyJWT, (req, res) => {
 // **DELETE**: Menghapus balasan (soft delete, dilindungi dengan verifyJWT)
 router.delete('/replies/:id', verifyJWT, (req, res) => {
   if (!req.user) {
-    return res.redirect('/auth.html');
+    return res.status(401).json({ error: 'Unauthorized: No user information' });
   }
   let replyId = req.params.id;
   const userId = req.user.id;
