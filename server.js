@@ -11,11 +11,17 @@ const app = express();
 
 // Apply rate limiting to all requests to mitigate brute force and DoS attacks
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  max: 50, // limit each IP to 50 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many requests from this IP, please try again later.'
+  handler: (req, res) => {
+    res.status(429).json({
+      status: 429,
+      error: 'Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti.',
+      message: 'Anda telah melebihi batas maksimum permintaan dalam 1 menit terakhir.'
+    });
+  }
 });
 
 app.use(limiter);

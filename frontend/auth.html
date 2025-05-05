@@ -283,6 +283,9 @@
           localStorage.setItem('token', result.token);
           window.location.href = 'chat.html';
         } else {
+          if (result.status === 429) {
+            alert('Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti.');
+          }
           if (otpCode && result.error && result.error.toLowerCase().includes('totp')) {
             showErrorMessage('Otp invalid !', 'errorMessage');
           } else {
