@@ -11,7 +11,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'e5a02f9d2488cb7d09e019f15eeb9e4f14
 // Helper functions for validation and sanitization
 function sanitizeString(str) {
   if (typeof str !== 'string') return '';
-  return str.trim();
+  const sanitized = str.trim();
+
+  // Block common SQL Injection patterns
+  const forbiddenPatterns = [/--/, /\bOR\b/i, /\bAND\b/i, /\bUNION\b/i, /;/, /'/, /"/];
+  for (const pattern of forbiddenPatterns) {
+    if (pattern.test(sanitized)) {
+      return ''; // Return empty string if forbidden pattern found
+    }
+  }
+
+  return sanitized;
 }
 
 function isValidUsername(username) {

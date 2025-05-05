@@ -28,9 +28,19 @@ function validateCsrfToken(req, res, next) {
   // Skip CSRF validation for login, register, and OTP related routes
   if (method === 'POST' && (
     req.path === '/api/auth/register' ||
-    req.path === '/api/auth/login' && req.body && req.body.totpCode
+    (req.path === '/api/auth/login' && req.body && req.body.totpCode)
   )) {
     return next();
+  }
+
+  // Validate Referer and Origin headers for CSRF protection
+  const referer = req.headers['referer'] || '';
+  const origin = req.headers['origin'] || '';
+  const host = req.headers['host'] || '';
+
+  // Allow if referer or origin matches host (same origin)
+  if (referer && !referer.includes(host) && origin && !origin.includes(host)) {
+    return res.status(403).json({ error: 'Invalid Referer or Origin header' });
   }
 
   if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
