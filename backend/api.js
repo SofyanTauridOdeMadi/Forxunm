@@ -10,11 +10,21 @@ const profileRouter = require('./api-profile');
 
 router.use(cookieParser());
 
-// Generate CSRF token for all requests
-router.use(generateCsrfToken);
+// Generate CSRF token for all requests except auth routes
+router.use((req, res, next) => {
+  if (req.path.startsWith('/auth')) {
+    return next();
+  }
+  generateCsrfToken(req, res, next);
+});
 
-// Validate CSRF token on state-changing requests
-router.use(validateCsrfToken);
+// Validate CSRF token on state-changing requests except auth routes
+router.use((req, res, next) => {
+  if (req.path.startsWith('/auth')) {
+    return next();
+  }
+  validateCsrfToken(req, res, next);
+});
 
 // New endpoint to get CSRF token
 router.get('/csrf-token', (req, res) => {

@@ -265,27 +265,14 @@
       console.log('Performing login with reCAPTCHA token:', recaptchaToken);
       toggleLoading(true);
       try {
-        // Fetch CSRF token from backend
-        const csrfToken = await fetch('/api/csrf-token').then(res => {
-          if (res.ok) return res.json();
-          throw new Error('Failed to fetch CSRF token');
-        }).then(data => data.csrfToken).catch(err => {
-          console.error(err);
-          return null;
-        });
-
-        if (!csrfToken) {
-          showErrorMessage('CSRF token is missing. Cannot login.', 'errorMessage');
-          toggleLoading(false);
-          return;
-        }
+        // Since CSRF token is not used, skip fetching it
 
         const response = await fetch('https://localhost:3443/api/auth/login', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'x-csrf-token': csrfToken,
           },
+          credentials: 'include',
           body: JSON.stringify({ userInput, password, otpCode, recaptchaResponse: recaptchaToken }),
         });
 
@@ -296,7 +283,11 @@
           localStorage.setItem('token', result.token);
           window.location.href = 'chat.html';
         } else {
-          showErrorMessage('Error: ' + result.error, 'errorMessage');
+          if (otpCode && result.error && result.error.toLowerCase().includes('totp')) {
+            showErrorMessage('Otp invalid !', 'errorMessage');
+          } else {
+            showErrorMessage('Error: ' + result.error, 'errorMessage');
+          }
           grecaptcha.reset();
           recaptchaToken = '';
         }
@@ -330,17 +321,22 @@
         return;
       }
 
-      executeRecaptcha(async () => {
-        if (!recaptchaToken) {
-          showErrorMessage('reCAPTCHA verification failed. Please try again.', 'errorMessage');
-          return;
-        }
+      if (otpCode) {
+        // If OTP code is entered, skip reCAPTCHA and login directly
+        performLogin(userInput, password, otpCode, '');
+      } else {
+        executeRecaptcha(async () => {
+          if (!recaptchaToken) {
+            showErrorMessage('reCAPTCHA verification failed. Please try again.', 'errorMessage');
+            return;
+          }
 
-        await performLogin(userInput, password, otpCode, recaptchaToken);
-      });
+          await performLogin(userInput, password, otpCode, recaptchaToken);
+        });
+      }
     });
 
-    // New event listener for OTP code input to trigger reCAPTCHA and login automatically
+    // New event listener for OTP code input to trigger login automatically without reCAPTCHA
     document.getElementById('loginOtpCode').addEventListener('input', () => {
       const userInput = document.getElementById('loginUserInput').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
@@ -355,14 +351,8 @@
       }
 
       if (otpCode.length === 6) {
-        // If OTP code is 6 digits, execute reCAPTCHA and login automatically
-        executeRecaptcha(async () => {
-          if (!recaptchaToken) {
-            showErrorMessage('reCAPTCHA verification failed. Please try again.', 'errorMessage');
-            return;
-          }
-          await performLogin(userInput, password, otpCode, recaptchaToken);
-        });
+        // If OTP code is 6 digits, login automatically without reCAPTCHA
+        performLogin(userInput, password, otpCode, '');
       }
     });
 
@@ -395,27 +385,14 @@
         toggleLoading(true);
 
         try {
-          // Fetch CSRF token from backend
-          const csrfToken = await fetch('/api/csrf-token').then(res => {
-            if (res.ok) return res.json();
-            throw new Error('Failed to fetch CSRF token');
-          }).then(data => data.csrfToken).catch(err => {
-            console.error(err);
-            return null;
-          });
-
-          if (!csrfToken) {
-            showErrorMessage('CSRF token is missing. Cannot register.', 'errorMessage');
-            toggleLoading(false);
-            return;
-          }
+          // Since CSRF token is not used, skip fetching it
 
           const response = await fetch('https://localhost:3443/api/auth/register', {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
-              'x-csrf-token': csrfToken,
             },
+            credentials: 'include',
             body: JSON.stringify({ username, password, recaptchaResponse: recaptchaToken }),
           });
 

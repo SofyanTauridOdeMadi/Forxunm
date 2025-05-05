@@ -8,7 +8,14 @@ function generateCsrfToken(req, res, next) {
   let token = req.cookies ? req.cookies[CSRF_TOKEN_COOKIE] : null;
   if (!token) {
     token = crypto.randomBytes(24).toString('hex');
-    res.cookie(CSRF_TOKEN_COOKIE, token, { httpOnly: true, sameSite: 'strict' });
+    const cookieOptions = {
+      httpOnly: true,
+      sameSite: 'strict',
+    };
+    if (process.env.NODE_ENV === 'production') {
+      cookieOptions.secure = true;
+    }
+    res.cookie(CSRF_TOKEN_COOKIE, token, cookieOptions);
   }
   res.locals.csrfToken = token;
   next();
@@ -17,6 +24,15 @@ function generateCsrfToken(req, res, next) {
 // Middleware to validate CSRF token on state-changing requests
 function validateCsrfToken(req, res, next) {
   const method = req.method.toUpperCase();
+
+  // Skip CSRF validation for login, register, and OTP related routes
+  if (method === 'POST' && (
+    req.path === '/api/auth/register' ||
+    req.path === '/api/auth/login' && req.body && req.body.totpCode
+  )) {
+    return next();
+  }
+
   if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
     const tokenFromHeader = req.headers[CSRF_TOKEN_HEADER];
     const tokenFromCookie = req.cookies ? req.cookies[CSRF_TOKEN_COOKIE] : null;

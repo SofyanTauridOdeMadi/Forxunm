@@ -71,13 +71,18 @@ const secretKey = process.env.RECAPTCHA_SECRET_KEY || '6LcW8iwrAAAAAAN7m5we_bEMU
 router.post('/login', express.json(), async (req, res) => {
   const { userInput, password, totpCode, recaptchaResponse } = req.body;
 
-  if (!recaptchaResponse) {
-    return res.status(400).json({ error: 'reCAPTCHA token is missing' });
-  }
-  // Assume verifyRecaptcha is implemented elsewhere
-  const recaptchaValid = await verifyRecaptcha(recaptchaResponse);
-  if (!recaptchaValid) {
-    return res.status(400).json({ error: 'Failed reCAPTCHA verification' });
+  // If TOTP code is provided, bypass reCAPTCHA verification
+  if (totpCode) {
+    // Skip reCAPTCHA check
+  } else {
+    if (!recaptchaResponse) {
+      return res.status(400).json({ error: 'reCAPTCHA token is missing' });
+    }
+    // Assume verifyRecaptcha is implemented elsewhere
+    const recaptchaValid = await verifyRecaptcha(recaptchaResponse);
+    if (!recaptchaValid) {
+      return res.status(400).json({ error: 'Failed reCAPTCHA verification' });
+    }
   }
 
   if (!userInput) {
