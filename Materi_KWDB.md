@@ -1,9 +1,10 @@
-██╗  ██╗███████╗███████╗
-╚██╗██╔╝██╔════╝██╔════╝
- ╚███╔╝ ███████╗███████╗     Serangan XSS (Cross-Site Scripting)
- ██╔██╗ ╚════██║╚════██║     Penjelasan Oleh @72_stom
-██╔╝ ██╗███████║███████║
-╚═╝  ╚═╝╚══════╝╚══════╝
+# 🛡️ Keamanan Aplikasi Web: Panduan Serangan dan Mitigasi
+
+Semangat Ujian Akhir Semester !!!
+
+---
+
+## 💥 Serangan XSS (Cross-Site Scripting)
 
 Serangan XSS (Cross-Site Scripting)
 XSS (Cross-Site Scripting) adalah jenis serangan yang memungkinkan penyerang untuk menyuntikkan
@@ -29,14 +30,8 @@ Mitigasi dari Serangan XSS
 
  3. Menonaktifkan Eksekusi JavaScript dalam Input Pengguna: 
  Hindari mengeksekusi JavaScript dalam data input pengguna, terutama di area yang menampilkan pesan atau elemen HTML dinamis.
-
-
- ██████╗███████╗██████╗ ███████╗
-██╔════╝██╔════╝██╔══██╗██╔════╝
-██║     ███████╗██████╔╝█████╗       Serangan CSRF (Cross-Site Request Forgery)
-██║     ╚════██║██╔══██╗██╔══╝       Penjelasan Oleh @72_stom
-╚██████╗███████║██║  ██║██║     
- ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝     
+  
+## 🛡️ Serangan CSRF (Cross-Site Request Forgery)
 
 CSRF (Cross-Site Request Forgery) adalah jenis serangan di mana penyerang memanfaatkan kepercayaan
 yang dimiliki oleh pengguna terhadap situs web tertentu untuk melakukan aksi yang tidak sah tanpa
@@ -73,13 +68,7 @@ Untuk melindungi web dari serangan CSRF, Kami menerapkan beberapa teknik pencega
  4.Validasi Tambahan:
  Menambahkan kata sandi dalam melakukan perubahan formulir.
 
-
-███████╗██╗██╗     ███████╗    ██╗   ██╗██████╗ ██╗      ██████╗  █████╗ ██████╗                    
-██╔════╝██║██║     ██╔════╝    ██║   ██║██╔══██╗██║     ██╔═══██╗██╔══██╗██╔══██╗                   
-█████╗  ██║██║     █████╗      ██║   ██║██████╔╝██║     ██║   ██║███████║██║  ██║     Serangan File Upload Vulnerability            
-██╔══╝  ██║██║     ██╔══╝      ██║   ██║██╔═══╝ ██║     ██║   ██║██╔══██║██║  ██║     Penjelasan Oleh @72_stom            
-██║     ██║███████╗███████╗    ╚██████╔╝██║     ███████╗╚██████╔╝██║  ██║██████╔╝                   
-╚═╝     ╚═╝╚══════╝╚══════╝     ╚═════╝ ╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝                    
+## 📂 Serangan File Upload Vulnerability          
 
 File Upload Vulnerability adalah jenis kerentanannya yang terjadi ketika aplikasi web memungkinkan pengguna
 untuk mengunggah file tanpa melakukan validasi yang memadai terhadap tipe atau konten file tersebut.
@@ -122,13 +111,7 @@ Untuk melindungi web dari serangan File Upload Vulnerability, Kami menerapkan be
  3. Batasi Ukuran File:
  Batasi ukuran file yang diunggah untuk mencegah file besar yang tidak diinginkan diunggah, yang dapat membebani server atau digunakan untuk menutupi file berbahaya.
 
-
-███████╗ ██████╗ ██╗         ██╗███╗   ██╗     ██╗███████╗ ██████╗████████╗██╗ ██████╗ ███╗   ██╗
-██╔════╝██╔═══██╗██║         ██║████╗  ██║     ██║██╔════╝██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║
-███████╗██║   ██║██║         ██║██╔██╗ ██║     ██║█████╗  ██║        ██║   ██║██║   ██║██╔██╗ ██║      Serangan SQL Injection
-╚════██║██║▄▄ ██║██║         ██║██║╚██╗██║██   ██║██╔══╝  ██║        ██║   ██║██║   ██║██║╚██╗██║			 Penjelasan Oleh @72_stom 
-███████║╚██████╔╝███████╗    ██║██║ ╚████║╚█████╔╝███████╗╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║
-╚══════╝ ╚══▀▀═╝ ╚══════╝    ╚═╝╚═╝  ╚═══╝ ╚════╝ ╚══════╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+## 🧩 Serangan SQL Injection
 
 SQL Injection adalah jenis serangan keamanan di mana penyerang menyisipkan atau "menyuntikkan" kode SQL berbahaya ke dalam input 
 web yang kemudian dieksekusi oleh database. Tujuannya adalah untuk mengakses, memanipulasi, atau merusak data yang seharusnya tidak boleh diakses,
@@ -139,7 +122,7 @@ Mitigasi SQL Injection dilakukan dengan beberapa cara utama diantarannya:
  Semua query SQL yang menerima input pengguna menggunakan placeholder (?) dan nilai input disisipkan sebagai parameter terpisah.
  Contohnya di backend/api-auth.js, backend/api-chat.js, dan backend/api-profile.js. Ini memastikan input pengguna diperlakukan sebagai data, 
  bukan kode SQL, sehingga mencegah eksekusi kode berbahaya.
- 
+
  2.Validasi dan Sanitasi Input:
  Sebelum digunakan dalam query, input pengguna divalidasi dan disanitasi, misalnya validasi username dengan regex, validasi email, dan sanitasi string 
  seperti const forbiddenPatterns = [/--/, /\bOR\b/i, /\bAND\b/i, /\bUNION\b/i, /;/, /'/, /"/];
@@ -149,13 +132,7 @@ Mitigasi SQL Injection dilakukan dengan beberapa cara utama diantarannya:
  Password pengguna di-hash sebelum disimpan atau dibandingkan, sehingga meskipun data bocor, password asli tidak langsung terekspos.
  Ini adalah praktik keamanan penting meskipun tidak langsung mencegah SQL Injection.
 
-
-██████╗ ██████╗ ██╗   ██╗████████╗███████╗    ███████╗ ██████╗ ██████╗  ██████╗███████╗
-██╔══██╗██╔══██╗██║   ██║╚══██╔══╝██╔════╝    ██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝
-██████╔╝██████╔╝██║   ██║   ██║   █████╗      █████╗  ██║   ██║██████╔╝██║     █████╗        Serangan SQL Injection
-██╔══██╗██╔══██╗██║   ██║   ██║   ██╔══╝      ██╔══╝  ██║   ██║██╔══██╗██║     ██╔══╝        Penjelasan oleh @72_stom
-██████╔╝██║  ██║╚██████╔╝   ██║   ███████╗    ██║     ╚██████╔╝██║  ██║╚██████╗███████╗
-╚═════╝ ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚══════╝    ╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝
+## 🔓 Brute Force Attack
 
 Brute force adalah jenis serangan di mana penyerang mencoba berbagai kombinasi username dan password secara berulang-ulang
 untuk mendapatkan akses tidak sah ke sistem. Serangan ini mengandalkan percobaan dan kesalahan (trial and error)

@@ -266,7 +266,7 @@
       .then(response => {
         if (response.status === 401) {
           alert('Unauthorized. Please log in.');
-          window.location.href = 'auth.html';
+          window.location.href = '/auth/login.html';
           throw new Error('Unauthorized');
         }
         return response.json();
@@ -566,7 +566,7 @@
       const token = localStorage.getItem('token');
       if (!token) {
         alert('Token not found. Please log in.');
-        window.location.href = 'auth.html';
+        window.location.href = '/auth/login.html';
         return;
       }
       loadThreads();

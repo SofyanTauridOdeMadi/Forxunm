@@ -99,12 +99,20 @@ app.get('/profile.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'profile.html'));
 });
 
-app.get('/auth.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'auth.html'));
+app.get('/auth/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'auth', 'login.html'));
 });
 
-app.get('/auth-2fa.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'auth-2fa.html'));
+app.get('/auth/register.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'auth', 'register.html'));
+});
+
+app.get('/auth/otp-login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'auth', 'otp-login.html'));
+});
+
+app.get('/auth/otp-register.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'auth', 'otp-register.html'));
 });
 
 app.get('/chat.html', (req, res) => {
@@ -133,4 +141,3 @@ https.createServer(sslOptions, app).listen(HTTPS_PORT, () => {
   HTTPS Server berjalan di https://localhost:${HTTPS_PORT} - Mode: ${NODE_ENV}
   `);
 });
-

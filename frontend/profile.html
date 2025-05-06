@@ -209,7 +209,7 @@
     const token = localStorage.getItem('token');
     if (!token) {
         alert('Token not found. Please log in again.');
-        window.location.href = 'auth.html'; // Mengarahkan ke halaman login jika token tidak ada
+        window.location.href = '/auth/login.html'; // Mengarahkan ke halaman login jika token tidak ada
         return;
     }
 
@@ -253,7 +253,7 @@
   // Fungsi logout
   function logout() {
       localStorage.removeItem('token');
-      window.location.href = 'auth.html'; // Redirect ke halaman login
+      window.location.href = '/auth/login.html'; // Redirect ke halaman login
   }
 
     async function fetchUserProfile() {

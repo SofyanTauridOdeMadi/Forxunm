@@ -240,4 +240,45 @@ router.post('/register', express.json(), async (req, res) => {
   });
 });
 
+/**
+ * POST /verify-totp
+ * Verify TOTP code during 2FA setup
+ */
+router.post('/verify-totp', express.json(), async (req, res) => {
+  const { totpCode } = req.body;
+  if (!totpCode || !/^\d{6}$/.test(totpCode)) {
+    return res.status(400).json({ error: 'Invalid TOTP code format' });
+  }
+
+  // For verification, we need the user context. Assuming user is authenticated or we can get user id from session or token.
+  // For simplicity, let's assume user id is passed in headers (in real app, use JWT or session)
+  const userId = req.headers['x-user-id'];
+  if (!userId) {
+    return res.status(401).json({ error: 'User not authenticated' });
+  }
+
+  const sqlGetUser = 'SELECT totp_secret FROM users WHERE id = ? LIMIT 1';
+  db.query(sqlGetUser, [userId], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const totpSecret = results[0].totp_secret;
+    if (!totpSecret) {
+      return res.status(400).json({ error: 'TOTP not set up for user' });
+    }
+    const verified = speakeasy.totp.verify({
+      secret: totpSecret,
+      encoding: 'base32',
+      token: totpCode,
+      window: 0,
+    });
+    if (verified) {
+      return res.json({ status: 'TOTP verified' });
+    } else {
+      return res.status(401).json({ error: 'Invalid or expired TOTP code' });
+    }
+  });
+});
+
 module.exports = { router, verifyJWT, sanitizeString };

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ForXunm - OTP Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; position: relative;
+      background: url('/UNM.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .gradient-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(45deg, #ff8c00, #ffb74d, #ff5722, #ff9800);
+      background-size: 400% 400%; animation: gradientAnimation 15s ease infinite;
+      opacity: 0.3; z-index: -1;
+    }
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .auth-container {
+      max-width: 400px; width: 100%; background: rgba(255,255,255,0.9);
+      border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      padding: 30px; margin: auto; margin-top: 5vh;
+    }
+    h1 {
+      color: #ff8c00; font-size: 2rem; margin-bottom: 20px; font-weight: bold;
+      text-align: center;
+    }
+    .btn-orange {
+      background-color: #ff8c00; color: white; transition: background-color 0.3s ease;
+    }
+    .btn-orange:hover {
+      background-color: #e57300;
+    }
+    .toggle-section {
+      margin-top: 10px; text-align: center; font-size: 0.9rem; color: #888;
+    }
+    .toggle-section span {
+      color: #ff8c00; cursor: pointer;
+    }
+    .form-control:focus {
+      border-color: #ff8c00; box-shadow: 0 0 5px #ff8c00; background-color: #fff8e1;
+    }
+    .form-control {
+      background-color: #fff8e1;
+    }
+    .error-message {
+      color: #ff3b3b; font-weight: bold; margin-top: 0.5rem; text-align: center; min-height: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-overlay"></div>
+  <div class="auth-container">
+    <h1>ForXunm</h1>
+    <h3 class="text-center mb-3">OTP Login</h3>
+    <!-- Removed username input, use username from sessionStorage -->
+    <input id="otpLoginCode" type="text" class="form-control mb-3" placeholder="OTP Code" maxlength="6" />
+    <button id="otpLoginBtn" type="button" class="btn btn-orange w-100 mb-3">Verify OTP</button>
+    <div class="toggle-section">
+      <span id="goToLogin">Back to Login</span>
+    </div>
+    <div id="errorMessage" class="error-message"></div>
+  </div>
+
+  <script>
+    function showErrorMessage(message) {
+      const el = document.getElementById('errorMessage');
+      el.textContent = message;
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 500);
+    }
+
+    async function performOtpLogin(totpCode) {
+      const userInput = sessionStorage.getItem('usernameForOtp');
+      if (!userInput) {
+        showErrorMessage('Username not found. Please login again.');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+        return;
+      }
+      try {
+        const response = await fetch('https://localhost:3443/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ userInput, totpCode }),
+        });
+        const result = await response.json();
+        if (result.status === 'Login successful') {
+          localStorage.setItem('token', result.token);
+          sessionStorage.removeItem('usernameForOtp');
+          window.location.href = '../chat.html';
+        } else {
+          showErrorMessage('Error: ' + (result.error || 'Login failed'));
+        }
+      } catch (error) {
+        showErrorMessage('Something went wrong during login. Please try again.');
+      }
+    }
+
+    document.getElementById('otpLoginBtn').addEventListener('click', () => {
+      const totpCode = document.getElementById('otpLoginCode').value.trim();
+
+      showErrorMessage('');
+
+      if (!totpCode || totpCode.length !== 6) {
+        showErrorMessage('Please enter a valid 6-digit OTP code!');
+        return;
+      }
+
+      performOtpLogin(totpCode);
+    });
+
+    document.getElementById('goToLogin').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
