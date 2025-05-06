@@ -90,15 +90,15 @@ atau bahkan mengambil alih server atau aplikasi web yang rentan.
 ⸻
 
 Jenis-Jenis Serangan File Upload
- 1.	Upload Skrip Berbahaya:
+ 1. Upload Skrip Berbahaya:
  Penyerang mengunggah file skrip (misalnya, PHP, ASP, atau JSP) yang dapat dieksekusi di server.
  Setelah file diunggah, penyerang dapat mengakses file tersebut melalui URL dan menjalankan skrip untuk merusak sistem, mencuri data, atau menjalankan perintah yang tidak sah.
- 2.	Web Shell:
+ 2. Web Shell:
  Penyerang dapat mengunggah web shell, yaitu skrip atau file yang memungkinkan mereka mengakses server dan menjalankan perintah shell di server tersebut. Web shell ini sering digunakan untuk mengambil alih server atau melakukan serangan lebih lanjut.
  3. Cross-Site Scripting (XSS) Melalui File:
  File yang diunggah oleh pengguna (seperti gambar atau dokumen) dapat disusupi dengan skrip berbahaya yang dieksekusi saat file dilihat oleh pengguna lain. Misalnya, file gambar yang berisi skrip JavaScript yang berbahaya.
  4. Upload File dengan Ekstensi Berbahaya:
-	•	Penyerang mengunggah file dengan ekstensi yang terlihat sah (misalnya .jpg, .png), namun isinya adalah file skrip atau executable yang dapat dipicu oleh aplikasi yang tidak memvalidasi file tersebut.
+Penyerang mengunggah file dengan ekstensi yang terlihat sah (misalnya .jpg, .png), namun isinya adalah file skrip atau executable yang dapat dipicu oleh aplikasi yang tidak memvalidasi file tersebut.
 
 ⸻
 
@@ -179,5 +179,5 @@ Mitigasi terhadap serangan brute force dilakukan dengan beberapa cara:
  Password disimpan dalam bentuk hash, sehingga meskipun data bocor, password asli tidak langsung diketahui.
  
  5. Rate limiting:
- Menggunakan middleware express-rate-limit. Konfigurasi rate limiting ini membatasi setiap IP hanya dapat melakukan maksimal 100 request
- dalam jangka waktu 1 menit. Jika batas ini terlampaui, server akan menolak request dengan pesan "Too many requests from this IP, please try again later."
+ Menggunakan middleware express-rate-limit. Konfigurasi rate limiting ini membatasi setiap IP hanya dapat melakukan maksimal 50 request
+ dalam jangka waktu 30 detik. Jika batas ini terlampaui, server akan menolak request dengan pesan "Too many requests from this IP, please try again later."

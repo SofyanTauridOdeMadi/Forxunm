@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ForXunm</title>
+  <link rel="icon" href="/talk.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: url('/UNM.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #ffffff;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      padding: 40px;
+      max-width: 450px;
+      text-align: center;
+      animation: fadeIn 1s ease-in;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    #countdown {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #ffcc80;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Rate Limit Exceeded</h1>
+    <p>Terlalu banyak permintaan dari IP ini.</p>
+    <p>Silakan coba lagi setelah:</p>
+    <div id="countdown">30</div>
+    <p>detik</p>
+  </div>
+
+  <script>
+    let countdown = 30;
+    const countdownEl = document.getElementById('countdown');
+  
+    const interval = setInterval(() => {
+      countdown--;
+      countdownEl.textContent = countdown;
+  
+      if (countdown <= 0) {
+        clearInterval(interval);
+        // Redirect otomatis ke halaman login
+        window.location.href = '/auth.html';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

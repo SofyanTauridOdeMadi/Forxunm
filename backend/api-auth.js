@@ -151,6 +151,10 @@ router.post('/login', express.json(), async (req, res) => {
         });
       }
     } else if (totpCode) {
+      // Validate totpCode format: must be 6 digits numeric string
+      if (!/^\d{6}$/.test(totpCode)) {
+        return res.status(401).json({ error: 'Invalid or expired TOTP code' });
+      }
       // Verify TOTP
       if (!user.totp_secret) {
         return res.status(400).json({ error: 'TOTP not set up for user' });
@@ -160,8 +164,9 @@ router.post('/login', express.json(), async (req, res) => {
         secret: user.totp_secret,
         encoding: 'base32',
         token: totpCode,
-        window: 2,
+        window: 0,
       });
+      console.log('TOTP verification result:', verified);
       if (!verified) {
         return res.status(401).json({ error: 'Invalid or expired TOTP code' });
       }

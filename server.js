@@ -11,20 +11,29 @@ const app = express();
 
 // Apply rate limiting to all requests to mitigate brute force and DoS attacks
 const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minutes
+  windowMs: 1 * 30 * 1000, // 30 seconds seconds
   max: 50, // limit each IP to 50 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
-    res.status(429).json({
-      status: 429,
-      error: 'Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti.',
-      message: 'Anda telah melebihi batas maksimum permintaan dalam 1 menit terakhir.'
-    });
+    res.redirect('/rate-limit.html');
   }
 });
 
-app.use(limiter);
+const skipRateLimit = (req) => {
+  const bypassPaths = [
+    '/rate-limit.html'
+  ];
+  return bypassPaths.includes(req.path);
+};
+
+app.use((req, res, next) => {
+  if (skipRateLimit(req)) {
+    return next();
+  } else {
+    return limiter(req, res, next);
+  }
+});
 
 app.use(helmet({
       contentSecurityPolicy: {
@@ -100,6 +109,10 @@ app.get('/auth-2fa.html', (req, res) => {
 
 app.get('/chat.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'chat.html'));
+});
+
+app.get('/rate-limit.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'rate-limit.html'));
 });
 
 const PORT = process.env.PORT || 3000;

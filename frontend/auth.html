@@ -261,7 +261,7 @@
     }
 
     // New function to handle login request
-    async function performLogin(userInput, password, otpCode, recaptchaToken) {
+    async function performLogin(userInput, password, totpCode, recaptchaToken) {
       console.log('Performing login with reCAPTCHA token:', recaptchaToken);
       toggleLoading(true);
       try {
@@ -273,7 +273,7 @@
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-          body: JSON.stringify({ userInput, password, otpCode, recaptchaResponse: recaptchaToken }),
+          body: JSON.stringify({ userInput, password, totpCode, recaptchaResponse: recaptchaToken }),
         });
 
         const result = await response.json();
@@ -286,7 +286,7 @@
           if (result.status === 429) {
             alert('Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti.');
           }
-          if (otpCode && result.error && result.error.toLowerCase().includes('totp')) {
+          if (totpCode && result.error && result.error.toLowerCase().includes('totp')) {
             showErrorMessage('Otp invalid !', 'errorMessage');
           } else {
             showErrorMessage('Error: ' + result.error, 'errorMessage');
@@ -309,7 +309,7 @@
     document.getElementById('loginBtn').addEventListener('click', () => {
       const userInput = document.getElementById('loginUserInput').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
-      const otpCode = document.getElementById('loginOtpCode').value.trim();
+      const totpCode = document.getElementById('loginOtpCode').value.trim();
 
       // Clear previous error message
       showErrorMessage('', 'errorMessage');
@@ -319,14 +319,14 @@
         return;
       }
 
-      if (!password && !otpCode) {
+      if (!password && !totpCode) {
         showErrorMessage('Please enter either password or OTP code!', 'errorMessage');
         return;
       }
 
-      if (otpCode) {
+      if (totpCode) {
         // If OTP code is entered, skip reCAPTCHA and login directly
-        performLogin(userInput, password, otpCode, '');
+        performLogin(userInput, password, totpCode, '');
       } else {
         executeRecaptcha(async () => {
           if (!recaptchaToken) {
@@ -334,7 +334,7 @@
             return;
           }
 
-          await performLogin(userInput, password, otpCode, recaptchaToken);
+          await performLogin(userInput, password, totpCode, recaptchaToken);
         });
       }
     });
@@ -343,7 +343,7 @@
     document.getElementById('loginOtpCode').addEventListener('input', () => {
       const userInput = document.getElementById('loginUserInput').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
-      const otpCode = document.getElementById('loginOtpCode').value.trim();
+      const totpCode = document.getElementById('loginOtpCode').value.trim();
 
       // Clear previous error message
       showErrorMessage('', 'errorMessage');
@@ -353,9 +353,9 @@
         return;
       }
 
-      if (otpCode.length === 6) {
+      if (totpCode.length === 6) {
         // If OTP code is 6 digits, login automatically without reCAPTCHA
-        performLogin(userInput, password, otpCode, '');
+        performLogin(userInput, password, totpCode, '');
       }
     });
 
