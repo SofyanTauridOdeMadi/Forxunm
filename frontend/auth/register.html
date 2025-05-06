@@ -12,10 +12,13 @@
       background-size: cover;
     }
     .gradient-overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(45deg, #ff8c00, #ffb74d, #ff5722, #ff9800);
       background-size: 400% 400%; animation: gradientAnimation 15s ease infinite;
-      opacity: 0.3; z-index: -1;
+      opacity: 0.3;
+      z-index: 0;
+      opacity: 0.4;
+      pointer-events: none;
     }
     @keyframes gradientAnimation {
       0% { background-position: 0% 50%; }
@@ -25,7 +28,9 @@
     .auth-container {
       max-width: 400px; width: 100%; background: rgba(255,255,255,0.9);
       border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      padding: 30px; margin: auto; margin-top: 5vh;
+      padding: 30px; margin: auto;
+      animation: fadeInUp 2.5s ease-out;
+      z-index: 2;
     }
     h1 {
       color: #ff8c00; font-size: 2rem; margin-bottom: 20px; font-weight: bold;
@@ -109,10 +114,13 @@
         if (result.status === 'Registration successful') {
           if (result.otpauthUrl) {
             localStorage.setItem('totpQrCodeDataUrl', result.otpauthUrl);
-            window.open('otp-register.html', '2FA Setup', 'width=400,height=600');
+            localStorage.setItem('token', result.token || ''); // Save token if provided
+            // Redirect directly to otp-register.html instead of popup
+            window.location.href = 'otp-register.html';
+          } else {
+            alert('Registration successful! Please login.');
+            window.location.href = 'login.html';
           }
-          alert('Registration successful! Please scan the QR code and then verify OTP.');
-          window.location.href = 'login.html';
         } else {
           showErrorMessage('Error: ' + (result.error || 'Registration failed'));
           grecaptcha.reset();

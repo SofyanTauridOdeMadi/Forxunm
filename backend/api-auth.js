@@ -126,6 +126,10 @@ router.post('/login', express.json(), async (req, res) => {
       // Verify password
       const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
       if (hashedPassword === user.password) {
+        // If user has totp_secret set, require TOTP validation
+        if (user.totp_secret) {
+          return res.json({ status: 'TOTP required' });
+        }
         // Reset failed attempts
         const resetSql = 'UPDATE users SET failed_login_attempts = 0, lockout_until = NULL WHERE id = ?';
         db.query(resetSql, [user.id], (resetErr) => {
@@ -244,18 +248,13 @@ router.post('/register', express.json(), async (req, res) => {
  * POST /verify-totp
  * Verify TOTP code during 2FA setup
  */
-router.post('/verify-totp', express.json(), async (req, res) => {
+router.post('/verify-totp', verifyJWT, express.json(), async (req, res) => {
   const { totpCode } = req.body;
   if (!totpCode || !/^\d{6}$/.test(totpCode)) {
     return res.status(400).json({ error: 'Invalid TOTP code format' });
   }
 
-  // For verification, we need the user context. Assuming user is authenticated or we can get user id from session or token.
-  // For simplicity, let's assume user id is passed in headers (in real app, use JWT or session)
-  const userId = req.headers['x-user-id'];
-  if (!userId) {
-    return res.status(401).json({ error: 'User not authenticated' });
-  }
+  const userId = req.user.id;
 
   const sqlGetUser = 'SELECT totp_secret FROM users WHERE id = ? LIMIT 1';
   db.query(sqlGetUser, [userId], (err, results) => {

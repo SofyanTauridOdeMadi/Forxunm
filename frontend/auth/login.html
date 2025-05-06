@@ -12,10 +12,13 @@
       background-size: cover;
     }
     .gradient-overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(45deg, #ff8c00, #ffb74d, #ff5722, #ff9800);
       background-size: 400% 400%; animation: gradientAnimation 15s ease infinite;
-      opacity: 0.3; z-index: -1;
+      opacity: 0.3;
+      z-index: 1;
+      opacity: 0.4;
+      pointer-events: none;
     }
     @keyframes gradientAnimation {
       0% { background-position: 0% 50%; }
@@ -25,8 +28,9 @@
     .auth-container {
       max-width: 400px; width: 100%; background: rgba(255,255,255,0.9);
       border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      padding: 30px; margin: auto; margin-top: 5vh;
+      padding: 30px; margin: auto;
       animation: fadeInUp 2.5s ease-out;
+      z-index: 2;
     }
 
     h1 {
@@ -130,7 +134,7 @@
               window.location.href = 'otp-login.html';
             } else if (result.status === 'Login successful') {
               localStorage.setItem('token', result.token);
-              window.location.href = '../chat.html';
+              window.location.href = '../home.html';
             } else {
               showErrorMessage('Error: ' + (result.error || 'Login failed'));
               grecaptcha.reset();
@@ -158,7 +162,7 @@
             window.location.href = 'otp-login.html';
           } else if (result.status === 'Login successful') {
             localStorage.setItem('token', result.token);
-            window.location.href = '../chat.html';
+            window.location.href = '../home.html';
           } else {
             showErrorMessage('Error: ' + (result.error || 'Login failed'));
           }

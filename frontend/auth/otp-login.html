@@ -96,7 +96,7 @@
         if (result.status === 'Login successful') {
           localStorage.setItem('token', result.token);
           sessionStorage.removeItem('usernameForOtp');
-          window.location.href = '../chat.html';
+          window.location.href = '../home.html';
         } else {
           showErrorMessage('Error: ' + (result.error || 'Login failed'));
         }

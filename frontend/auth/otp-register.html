@@ -103,6 +103,7 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
     const qrCodeDataUrl = localStorage.getItem('totpQrCodeDataUrl') || '';
+    const token = localStorage.getItem('token') || '';
 
     const qrCanvas = document.getElementById('qrCodeCanvas');
     const messageDiv = document.getElementById('message');
@@ -110,7 +111,10 @@
     const verifyBtn = document.getElementById('verifyTotpBtn');
     const otpauthUrlLink = document.getElementById('otpauthUrlLink');
 
-    if (qrCodeDataUrl) {
+    if (!qrCodeDataUrl || !token) {
+      alert('Error: You not registration or not authenticated');
+      window.location.href = 'login.html';
+    } else {
       QRCode.toCanvas(qrCanvas, qrCodeDataUrl, { width: 200 }, function (error) {
         if (error) {
           messageDiv.textContent = 'Failed to load QR code.';
@@ -118,8 +122,6 @@
         }
       });
       otpauthUrlLink.innerHTML = `<a href="${qrCodeDataUrl}" target="_blank" rel="noopener noreferrer">${qrCodeDataUrl}</a>`;
-    } else {
-      messageDiv.textContent = 'No QR code data available.';
     }
 
     verifyBtn.addEventListener('click', async () => {
@@ -133,17 +135,17 @@
       try {
         const response = await fetch('https://localhost:3443/api/auth/verify-totp', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ totpCode: code }),
         });
         const result = await response.json();
         if (result.status === 'TOTP verified') {
           messageDiv.textContent = '2FA setup successful! You can now log in.';
           setTimeout(() => {
-            window.close();
-            if (window.opener) {
-              window.opener.location.href = 'login.html';
-            }
+            window.location.href = 'login.html';
           }, 2000);
         } else {
           messageDiv.textContent = 'Verification failed: ' + (result.error || 'Invalid code');
