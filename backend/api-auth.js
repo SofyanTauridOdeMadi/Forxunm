@@ -237,9 +237,11 @@ router.post('/register', express.json(), async (req, res) => {
     // Insert user with hashed password and TOTP secret
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
     const sqlInsert = 'INSERT INTO users (username, password, totp_secret) VALUES (?, ?, ?)';
-    db.query(sqlInsert, [username, hashedPassword, totpSecret], (insertErr) => {
+    db.query(sqlInsert, [username, hashedPassword, totpSecret], (insertErr, result) => {
       if (insertErr) return res.status(500).json({ error: insertErr.message });
-      res.json({ status: 'Registration successful', totpSecret, otpauthUrl });
+      const userId = result.insertId;
+      const token = jwt.sign({ id: userId, username }, JWT_SECRET, { expiresIn: '1h' });
+      res.json({ status: 'Registration successful', totpSecret, otpauthUrl, token });
     });
   });
 });
